@@ -21,6 +21,7 @@ const notificationsDialog = $('#notifications-dialog');
 const editPostDialog = $('#edit-post-dialog');
 const storyDialog = $('#story-dialog');
 const storyViewerDialog = $('#story-viewer-dialog');
+const installAppButton = $('#install-app');
 const PROFILE_FIELDS = 'id, username, display_name, avatar_url, background_url, bio, profile_theme, follower_count, follower_bonus, following_count, post_count, is_private, show_follower_count, comments_from';
 
 let authMode = 'register';
@@ -54,6 +55,7 @@ let currentMessages = [];
 let replyingToMessage = null;
 let chatRealtimeChannel = null;
 let typingTimer = null;
+let deferredInstallPrompt = null;
 
 function escapeHtml(value = '') {
   return String(value)
@@ -133,6 +135,40 @@ function showToast(message, type = 'success') {
   toast.textContent = message;
   toast.className = `toast show${type === 'error' ? ' error' : ''}`;
   toastTimer = window.setTimeout(() => { toast.className = 'toast'; }, 4300);
+}
+
+function setInstallButtonVisible(visible) {
+  if (!installAppButton) return;
+  installAppButton.hidden = !visible;
+}
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  setInstallButtonVisible(true);
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  setInstallButtonVisible(false);
+  showToast('SR se instaló correctamente en este dispositivo.');
+});
+
+installAppButton?.addEventListener('click', async () => {
+  if (!deferredInstallPrompt) {
+    showToast('Usa el menú del navegador y selecciona “Instalar SR” o “Añadir a pantalla de inicio”.');
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  setInstallButtonVisible(false);
+});
+
+if ('serviceWorker' in navigator && window.isSecureContext) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch((error) => {
+    console.warn('No pudimos activar el modo instalable.', error);
+  }));
 }
 
 function setBusy(button, busy, busyText) {

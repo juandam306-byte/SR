@@ -6,6 +6,9 @@
     <meta name="theme-color" content="#6657ff" />
     <meta name="description" content="SR — Sin Restricciones. Comparte, conversa y conecta." />
     <title>SR — Sin Restricciones</title>
+    <link rel="icon" href="assets/sr-logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/sr-icon-192.png" />
+    <link rel="manifest" href="manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -17,11 +20,12 @@
 
     <header class="site-header">
       <a class="brand" href="#inicio" aria-label="SR, inicio">
-        <span class="brand-mark">SR</span>
+        <span class="brand-mark"><img src="assets/sr-logo.svg" alt="" width="44" height="44" /></span>
         <span class="brand-name">SR <small>sin restricciones</small></span>
       </a>
       <div class="header-actions">
         <div class="user-search"><span>⌕</span><input id="user-search-input" type="search" autocomplete="off" placeholder="Buscar personas" aria-label="Buscar personas" /><div id="user-search-results" class="user-search-results" hidden></div></div>
+        <button class="install-button" id="install-app" type="button" hidden title="Instalar SR como aplicación">Instalar</button>
         <button class="round-button" id="theme-toggle" type="button" aria-label="Activar modo oscuro" title="Cambiar tema">☾</button>
         <button class="round-button notification-trigger" id="notifications-toggle" type="button" aria-label="Ver notificaciones" title="Notificaciones" hidden>
           ♧<b id="notification-badge" hidden>0</b>
