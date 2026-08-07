@@ -13,6 +13,11 @@ const postForm = $('#post-form');
 const postContent = $('#post-content');
 const postMediaInput = $('#post-media');
 const postsList = $('#posts-list');
+const feedSentinel = $('#feed-sentinel');
+const loadMorePostsButton = $('#load-more-posts');
+const reelsList = $('#reels-list');
+const reelsStatus = $('#reels-status');
+const loadMoreReelsButton = $('#load-more-reels');
 const feedStatus = $('#feed-status');
 const toast = $('#toast');
 const profileDialog = $('#profile-dialog');
@@ -56,6 +61,15 @@ let replyingToMessage = null;
 let chatRealtimeChannel = null;
 let typingTimer = null;
 let deferredInstallPrompt = null;
+let reelsOffset = 0;
+let reelsExhausted = false;
+let reelObserver = null;
+let reelLoadObserver = null;
+let reelsLoading = false;
+let feedOffset = 0;
+let feedExhausted = false;
+let feedLoading = false;
+let feedObserver = null;
 
 function escapeHtml(value = '') {
   return String(value)
@@ -99,12 +113,68 @@ function badgeMarkup(profile) {
   return '';
 }
 
-function mediaMarkup(url, type, className = 'post-media') {
-  if (!url) return '';
-  const safeUrl = escapeHtml(url);
-  if (type === 'video') return `<video class="${className} video" controls preload="metadata" src="${safeUrl}"></video>`;
-  if (type === 'audio') return `<audio controls preload="metadata" src="${safeUrl}"></audio>`;
-  return `<img class="${className}" loading="lazy" alt="Archivo compartido" src="${safeUrl}" />`;
+function safeHttpsUrl(value) {
+  try {
+    const url = new URL(String(value || '').trim());
+    return url.protocol === 'https:' ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+function youtubeVideoId(value) {
+  const url = safeHttpsUrl(value);
+  if (!url) return null;
+  const host = url.hostname.toLowerCase().replace(/^www\./, '');
+  let id = null;
+  if (host === 'youtu.be') id = url.pathname.split('/').filter(Boolean)[0];
+  if (['youtube.com', 'm.youtube.com', 'youtube-nocookie.com'].includes(host)) {
+    if (url.pathname === '/watch') id = url.searchParams.get('v');
+    else if (/^\/(embed|shorts|live)\//.test(url.pathname)) id = url.pathname.split('/').filter(Boolean)[1];
+  }
+  return /^[A-Za-z0-9_-]{11}$/.test(id || '') ? id : null;
+}
+
+function sharedMediaFromLink(value, allowAudio = false) {
+  const url = safeHttpsUrl(value);
+  if (!url) throw new Error('Usa un enlace HTTPS público y completo.');
+  const youtubeId = youtubeVideoId(url.href);
+  if (youtubeId) return { url: `https://www.youtube-nocookie.com/embed/${youtubeId}`, type: 'video', provider: 'youtube', publicId: youtubeId, path: null };
+  const path = url.pathname.toLowerCase();
+  if (/\.(mp4|webm|ogv)(?:$)/.test(path)) return { url: url.href, type: 'video', provider: 'external', publicId: null, path: null };
+  if (allowAudio && /\.(mp3|m4a|ogg|wav|weba)(?:$)/.test(path)) return { url: url.href, type: 'audio', provider: 'external', publicId: null, path: null };
+  throw new Error(allowAudio
+    ? 'El enlace debe ser de YouTube o terminar en .mp4, .webm, .ogv, .mp3, .m4a, .ogg, .wav o .weba.'
+    : 'El enlace debe ser de YouTube o terminar en .mp4, .webm o .ogv.');
+}
+
+function youtubeEmbedSource(url, loop = false) {
+  const id = youtubeVideoId(url);
+  if (!id) return null;
+  const params = new URLSearchParams({ playsinline: '1', rel: '0', modestbranding: '1' });
+  if (loop) {
+    params.set('autoplay', '1');
+    params.set('mute', '1');
+    params.set('loop', '1');
+    params.set('playlist', id);
+  }
+  return `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
+}
+
+function mediaMarkup(url, type, className = 'post-media', provider = null, options = {}) {
+  const safeUrl = safeHttpsUrl(url);
+  if (!safeUrl) return '';
+  if (type === 'video') {
+    if (provider === 'youtube') {
+      const source = youtubeEmbedSource(safeUrl.href, Boolean(options.loop));
+      if (!source) return '';
+      return `<iframe class="${className} video youtube-embed" src="${escapeHtml(source)}" title="Video compartido" loading="lazy" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    }
+    const preload = options.preload === 'none' ? 'none' : 'metadata';
+    return `<video class="${className} video"${options.controls === false ? '' : ' controls'}${options.autoplay ? ' autoplay muted' : ''}${options.loop ? ' loop' : ''} playsinline preload="${preload}" src="${escapeHtml(safeUrl.href)}"></video>`;
+  }
+  if (type === 'audio') return `<audio class="${className}" controls preload="metadata" src="${escapeHtml(safeUrl.href)}"></audio>`;
+  return `<img class="${className}" loading="lazy" decoding="async" alt="Archivo compartido" src="${escapeHtml(safeUrl.href)}" />`;
 }
 
 function avatarMarkup(profile, className = 'avatar') {
@@ -289,7 +359,7 @@ function postCard(post, profile, reactions = {}, compact = false) {
   const name = author.display_name || 'Miembro de SR';
   const handle = usernameFor(author);
   const canDelete = post.author_id === currentUser.id;
-  const media = mediaMarkup(post.media_url || post.image_url, post.media_type || (post.image_url ? 'image' : null));
+  const media = mediaMarkup(post.media_url || post.image_url, post.media_type || (post.image_url ? 'image' : null), 'post-media', post.media_provider, { preload: 'none' });
   return `
     <article class="post-card${compact ? ' compact' : ''}" data-post-id="${post.id}">
       ${avatarMarkup(author)}
@@ -315,12 +385,12 @@ function emptyPosts(message = 'Aún no hay publicaciones.') {
   return `<section class="empty-state"><strong>${message}</strong>La próxima idea puede encender la conversación ✦</section>`;
 }
 
-async function fetchPosts(authorId = null) {
+async function fetchPosts(authorId = null, { offset = 0, limit = authorId ? 50 : 12 } = {}) {
   let query = supabase
     .from('posts')
-    .select('id, author_id, content, image_url, media_url, media_type, like_count, comment_count, repost_count, created_at');
+    .select('id, author_id, content, image_url, media_url, media_type, media_provider, like_count, comment_count, repost_count, created_at');
   if (authorId) query = query.eq('author_id', authorId);
-  const { data, error } = await query.order('created_at', { ascending: false });
+  const { data, error } = await query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
   if (error) throw error;
   const [profiles, reactions] = await Promise.all([
     profilesForIds(data.map((post) => post.author_id)),
@@ -329,19 +399,132 @@ async function fetchPosts(authorId = null) {
   return { posts: data, profiles, reactions };
 }
 
-async function loadFeed() {
-  feedStatus.textContent = 'Actualizando publicaciones…';
+function setupFeedInfiniteScroll() {
+  if (!feedSentinel) return;
+  feedObserver?.disconnect();
+  if (feedExhausted) { loadMorePostsButton.hidden = true; return; }
+  if (!('IntersectionObserver' in window)) { loadMorePostsButton.hidden = false; return; }
+  loadMorePostsButton.hidden = true;
+  feedObserver = new IntersectionObserver((entries) => {
+    if (entries.some((entry) => entry.isIntersecting)) loadFeed({ append: true });
+  }, { rootMargin: '700px 0px' });
+  feedObserver.observe(feedSentinel);
+}
+
+async function loadFeed({ append = false } = {}) {
+  if (feedLoading || (append && feedExhausted)) return;
+  const pageSize = 12;
+  if (!append) {
+    feedOffset = 0;
+    feedExhausted = false;
+    postsList.innerHTML = '';
+  }
+  feedLoading = true;
+  feedStatus.textContent = append ? 'Cargando más publicaciones…' : 'Actualizando publicaciones…';
   try {
-    const { posts, profiles, reactions } = await fetchPosts();
-    postsList.innerHTML = posts.length
-      ? posts.map((post) => postCard(post, profiles.get(post.author_id), reactions.get(post.id))).join('')
-      : emptyPosts();
-    feedStatus.textContent = posts.length ? `${posts.length} publicación${posts.length === 1 ? '' : 'es'} en SR` : '';
+    const { posts, profiles, reactions } = await fetchPosts(null, { offset: feedOffset, limit: pageSize });
+    const markup = posts.map((post) => postCard(post, profiles.get(post.author_id), reactions.get(post.id))).join('');
+    if (append) postsList.insertAdjacentHTML('beforeend', markup);
+    else postsList.innerHTML = markup || emptyPosts();
+    feedOffset += posts.length;
+    feedExhausted = posts.length < pageSize;
+    feedStatus.textContent = feedOffset ? `${feedOffset} publicación${feedOffset === 1 ? '' : 'es'} cargada${feedOffset === 1 ? '' : 's'}` : '';
+    setupFeedInfiniteScroll();
   } catch (error) {
     console.error(error);
     feedStatus.textContent = 'No fue posible cargar las publicaciones.';
     if (error.code === '42703') showToast('Ejecuta supabase-social-features.sql para activar las nuevas funciones.', 'error');
     else showToast(error.message || 'No pudimos cargar el inicio.', 'error');
+  } finally {
+    feedLoading = false;
+  }
+}
+
+function reelCard(post, profile, reactions = {}) {
+  const author = profile || {};
+  const name = author.display_name || 'Miembro de SR';
+  const media = mediaMarkup(post.media_url, 'video', 'reel-video', post.media_provider, { autoplay: true, loop: true, controls: false });
+  if (!media) return '';
+  const sound = post.media_provider === 'youtube' ? '' : '<button class="reel-action" type="button" data-reel-sound aria-label="Activar o silenciar sonido">♬</button>';
+  return `<article class="reel-card" data-post-id="${post.id}">
+    <div class="reel-media">${media}</div><div class="reel-overlay"></div>
+    <div class="reel-top"><button class="reel-author" type="button" data-open-profile="${post.author_id}">${avatarMarkup(author, 'avatar reel-avatar')}<span><b>${escapeHtml(name)}${badgeMarkup(author)}</b><small>${escapeHtml(usernameFor(author))}</small></span></button>${post.author_id === currentUser.id ? `<button class="reel-edit" type="button" data-edit-post="${post.id}" aria-label="Editar Reel">✎</button><button class="reel-delete" type="button" data-delete-post="${post.id}" aria-label="Eliminar Reel">×</button>` : ''}</div>
+    <div class="reel-bottom"><div class="reel-copy">${post.content ? `<p>${escapeHtml(post.content).replaceAll('\n', '<br>')}</p>` : '<p>Video compartido en SR</p>'}<small>${escapeHtml(prettyDate(post.created_at))}</small></div>
+      <div class="reel-actions"><button class="reel-action liked${reactions.liked ? ' active' : ''}" type="button" data-action="like" data-post-id="${post.id}" aria-label="Me gusta">♥<span>${compactNumber(post.like_count)}</span></button><button class="reel-action" type="button" data-action="comments" data-post-id="${post.id}" aria-label="Comentar">◌<span>${compactNumber(post.comment_count)}</span></button><button class="reel-action reposted${reactions.reposted ? ' active' : ''}" type="button" data-action="repost" data-post-id="${post.id}" aria-label="Repostear">↻<span>${compactNumber(post.repost_count)}</span></button>${sound}</div>
+    </div>
+  </article>`;
+}
+
+function setupReelPlayback() {
+  if (!reelsList || !('IntersectionObserver' in window)) return;
+  reelObserver?.disconnect();
+  reelObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const video = entry.target.querySelector('video');
+      if (!video) return;
+      if (entry.isIntersecting) video.play().catch(() => {});
+      else video.pause();
+    });
+  }, { root: reelsList, threshold: 0.7 });
+  reelsList.querySelectorAll('.reel-card').forEach((card) => reelObserver.observe(card));
+}
+
+function setupReelInfiniteScroll() {
+  if (!reelsList) return;
+  reelLoadObserver?.disconnect();
+  reelsList.querySelector('.reel-load-sentinel')?.remove();
+  if (reelsExhausted) { loadMoreReelsButton.hidden = true; return; }
+  if (!('IntersectionObserver' in window)) { loadMoreReelsButton.hidden = false; return; }
+  const sentinel = document.createElement('div');
+  sentinel.className = 'reel-load-sentinel';
+  sentinel.setAttribute('aria-hidden', 'true');
+  reelsList.append(sentinel);
+  loadMoreReelsButton.hidden = true;
+  reelLoadObserver = new IntersectionObserver((entries) => {
+    if (entries.some((entry) => entry.isIntersecting)) loadReels({ append: true });
+  }, { root: reelsList, rootMargin: '0px 0px 650px' });
+  reelLoadObserver.observe(sentinel);
+}
+
+async function loadReels({ append = false } = {}) {
+  if (!reelsList || reelsLoading || (append && reelsExhausted)) return;
+  const pageSize = 8;
+  if (!append) {
+    reelsOffset = 0;
+    reelsExhausted = false;
+    reelsList.innerHTML = '';
+    reelsStatus.textContent = 'Cargando Reels…';
+  }
+  reelsLoading = true;
+  loadMoreReelsButton.hidden = true;
+  try {
+    const { data, error } = await supabase
+      .from('posts')
+      .select('id, author_id, content, media_url, media_type, media_provider, like_count, comment_count, repost_count, created_at')
+      .eq('media_type', 'video')
+      .order('created_at', { ascending: false })
+      .range(reelsOffset, reelsOffset + pageSize - 1);
+    if (error) throw error;
+    const posts = data || [];
+    const [profiles, reactions] = await Promise.all([
+      profilesForIds(posts.map((post) => post.author_id)),
+      reactionState(posts.map((post) => post.id)),
+    ]);
+    const markup = posts.map((post) => reelCard(post, profiles.get(post.author_id), reactions.get(post.id))).filter(Boolean).join('');
+    if (append) reelsList.insertAdjacentHTML('beforeend', markup);
+    else reelsList.innerHTML = markup || emptyPosts('Todavía no hay Reels.');
+    reelsOffset += posts.length;
+    reelsExhausted = posts.length < pageSize;
+    reelsStatus.textContent = posts.length || append ? `${reelsOffset} Reel${reelsOffset === 1 ? '' : 's'} cargado${reelsOffset === 1 ? '' : 's'}` : '';
+    setupReelPlayback();
+    setupReelInfiniteScroll();
+  } catch (error) {
+    console.error(error);
+    reelsStatus.textContent = '';
+    if (!append) reelsList.innerHTML = emptyPosts('No pudimos cargar los Reels.');
+    showToast(error.message || 'No pudimos cargar los Reels.', 'error');
+  } finally {
+    reelsLoading = false;
   }
 }
 
@@ -810,7 +993,7 @@ function messageMarkup(message, messagesById, reactionsByMessage) {
     const active = reactions.some((reaction) => reaction.emoji === emoji && reaction.user_id === currentUser.id);
     return `<button type="button" class="${active ? 'active' : ''}" data-message-react="${message.id}" data-emoji="${emoji}" aria-label="Reaccionar con ${emoji}">${emoji}${count ? ` ${count}` : ''}</button>`;
   }).join('');
-  return `<article class="message-bubble${mine ? ' mine' : ''}" data-message-id="${message.id}">${reply}${message.media_url ? mediaMarkup(message.media_url, message.media_type, 'message-media') : ''}${message.content ? `<span>${escapeHtml(message.content).replaceAll('\n', '<br>')}</span>` : ''}<div class="message-reactions">${reactionMarkup}</div><div class="message-actions"><button type="button" data-message-reply="${message.id}">Responder</button>${mine ? `<button type="button" data-message-delete="${message.id}">Eliminar</button>` : ''}</div><time>${escapeHtml(prettyDate(message.created_at))}</time></article>`;
+  return `<article class="message-bubble${mine ? ' mine' : ''}" data-message-id="${message.id}">${reply}${message.media_url ? mediaMarkup(message.media_url, message.media_type, 'message-media', message.media_provider) : ''}${message.content ? `<span>${escapeHtml(message.content).replaceAll('\n', '<br>')}</span>` : ''}<div class="message-reactions">${reactionMarkup}</div><div class="message-actions"><button type="button" data-message-reply="${message.id}">Responder</button>${mine ? `<button type="button" data-message-delete="${message.id}">Eliminar</button>` : ''}</div><time>${escapeHtml(prettyDate(message.created_at))}</time></article>`;
 }
 
 async function loadMessages() {
@@ -972,7 +1155,7 @@ async function openPostDialog(postId) {
   try {
     const { data: post, error: postError } = await supabase
       .from('posts')
-      .select('id, author_id, content, image_url, media_url, media_type, like_count, comment_count, repost_count, created_at')
+      .select('id, author_id, content, image_url, media_url, media_type, media_provider, like_count, comment_count, repost_count, created_at')
       .eq('id', focusedPostId).single();
     if (postError) throw postError;
     const [profiles, reactions, commentsResponse, permissionResponse] = await Promise.all([
@@ -1125,6 +1308,7 @@ async function refreshActiveContent() {
   else if (activeView === 'messages' && selectedChat) await loadMessages();
   else if (activeView === 'settings') await loadSettings();
   else if (activeView === 'explore') await loadExplore();
+  else if (activeView === 'reels') await loadReels();
   else await loadFeed();
   await loadCurrentProfile();
   await loadNotifications();
@@ -1275,6 +1459,7 @@ $$('[data-view]').forEach((button) => button.addEventListener('click', async () 
   else if (view === 'messages') { setActiveView('messages'); if (!selectedChat) await loadContacts(); }
   else if (view === 'settings') { setActiveView('settings'); await loadSettings(); }
   else if (view === 'explore') { setActiveView('explore'); await loadExplore(); }
+  else if (view === 'reels') { setActiveView('reels'); await loadReels(); }
   else { setActiveView('feed'); await loadFeed(); }
 }));
 $('#refresh-button').addEventListener('click', async () => { await refreshActiveContent(); showToast('SR está actualizado.'); });
@@ -1390,12 +1575,15 @@ postMediaInput.addEventListener('change', () => {
 postForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const content = postContent.value.trim();
-  if (!content && !selectedPostMedia) { showToast('Escribe algo o adjunta una foto o video.', 'error'); return; }
+  const linkValue = $('#post-video-link').value.trim();
+  if (selectedPostMedia && linkValue) { showToast('Usa un archivo o un enlace de video, no ambos a la vez.', 'error'); return; }
+  if (!content && !selectedPostMedia && !linkValue) { showToast('Escribe algo, adjunta una foto/video o pega un enlace de video.', 'error'); return; }
   const button = $('#post-submit');
   setBusy(button, true, selectedPostMedia ? 'Subiendo…' : 'Publicando…');
   let uploaded;
   try {
     if (selectedPostMedia) uploaded = await uploadMedia(selectedPostMedia, 'post');
+    else if (linkValue) uploaded = sharedMediaFromLink(linkValue);
     const { error } = await supabase.from('posts').insert({ author_id: currentUser.id, content: content || '', media_url: uploaded?.url || null, media_type: uploaded?.type || null, media_provider: uploaded?.provider || null, media_public_id: uploaded?.publicId || null, media_path: uploaded?.path || null });
     if (error) throw error;
     postForm.reset(); selectedPostMedia = null; $('#character-count').textContent = '0 / 1000'; selectedFilePreview(null, $('#post-media-preview'), () => {});
@@ -1407,7 +1595,19 @@ postForm.addEventListener('submit', async (event) => {
     showToast(error.message || 'No pudimos publicar.', 'error');
   } finally { setBusy(button, false); }
 });
-[postsList, $('#explore-results'), $('#profile-posts-list'), $('#focused-post')].forEach((container) => container.addEventListener('click', handlePostAction));
+[postsList, $('#explore-results'), $('#profile-posts-list'), $('#focused-post'), reelsList].forEach((container) => container?.addEventListener('click', handlePostAction));
+reelsList?.addEventListener('click', (event) => {
+  const soundButton = event.target.closest('[data-reel-sound]');
+  if (!soundButton) return;
+  const video = soundButton.closest('.reel-card')?.querySelector('video');
+  if (!video) return;
+  video.muted = !video.muted;
+  soundButton.classList.toggle('active', !video.muted);
+  soundButton.setAttribute('aria-label', video.muted ? 'Activar sonido' : 'Silenciar sonido');
+  if (!video.paused) video.play().catch(() => {});
+});
+loadMoreReelsButton?.addEventListener('click', () => loadReels({ append: true }));
+loadMorePostsButton?.addEventListener('click', () => loadFeed({ append: true }));
 $('#explore-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   await loadExplore($('#explore-query').value);
@@ -1554,12 +1754,15 @@ $('#message-form').addEventListener('submit', async (event) => {
   if (!selectedChat) return;
   const content = $('#message-content').value.trim();
   if (!content && !selectedMessageMedia) { showToast('Escribe o adjunta un archivo.', 'error'); return; }
+  const isOnlyLink = /^https:\/\/\S+$/i.test(content);
+  if (selectedMessageMedia && isOnlyLink) { showToast('Usa un archivo o un enlace, no ambos a la vez.', 'error'); return; }
   const button = $('#message-submit');
   setBusy(button, true, '…');
   let uploaded;
   try {
     if (selectedMessageMedia) uploaded = await uploadMedia(selectedMessageMedia, 'message');
-    const { error } = await supabase.from('messages').insert({ sender_id: currentUser.id, receiver_id: selectedChat.id, content: content || null, media_url: uploaded?.url || null, media_type: uploaded?.type || null, media_provider: uploaded?.provider || null, media_public_id: uploaded?.publicId || null, reply_to_id: replyingToMessage?.id || null });
+    else if (isOnlyLink) uploaded = sharedMediaFromLink(content, true);
+    const { error } = await supabase.from('messages').insert({ sender_id: currentUser.id, receiver_id: selectedChat.id, content: uploaded && isOnlyLink ? null : (content || null), media_url: uploaded?.url || null, media_type: uploaded?.type || null, media_provider: uploaded?.provider || null, media_public_id: uploaded?.publicId || null, reply_to_id: replyingToMessage?.id || null });
     if (error) throw error;
     $('#message-form').reset(); selectedMessageMedia = null; $('#message-media-name').hidden = true; clearReply(); sendTypingState(false);
     await loadMessages();

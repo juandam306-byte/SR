@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sr-app-shell-v2';
+const CACHE_NAME = 'sr-app-shell-v3';
 const APP_SHELL = [
   './',
   './index.html',
@@ -34,6 +34,19 @@ self.addEventListener('fetch', (event) => {
       caches.open(CACHE_NAME).then((cache) => cache.put('./index.html', copy));
       return response;
     }).catch(() => caches.match('./index.html')));
+    return;
+  }
+
+  // La interfaz estática se entrega desde caché y se actualiza en segundo
+  // plano. Así el inicio abre más rápido sin congelar versiones antiguas.
+  if (['style', 'script', 'image', 'font'].includes(request.destination)) {
+    event.respondWith(caches.match(request).then((cached) => {
+      const update = fetch(request).then((response) => {
+        if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(request, response.clone()));
+        return response;
+      }).catch(() => cached || Response.error());
+      return cached || update;
+    }));
     return;
   }
 

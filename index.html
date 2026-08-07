@@ -71,6 +71,7 @@
           <nav class="primary-nav" aria-label="Navegación">
             <button class="nav-link active" type="button" data-view="feed"><span>⌂</span> Inicio</button>
             <button class="nav-link" type="button" data-view="explore"><span>⌕</span> Explorar</button>
+            <button class="nav-link" type="button" data-view="reels"><span>▷</span> Reels</button>
             <button class="nav-link" type="button" data-view="profile"><span>◎</span> Perfil</button>
             <button class="nav-link" type="button" data-view="messages"><span>✉</span> Mensajes <i id="messages-nav-dot" hidden></i></button>
             <button class="nav-link" type="button" data-view="settings"><span>⚙</span> Ajustes</button>
@@ -97,6 +98,7 @@
               <label class="sr-only" for="post-content">Escribe una publicación</label>
               <textarea id="post-content" maxlength="1000" placeholder="¿Qué quieres compartir hoy?"></textarea>
               <div id="post-media-preview" class="media-preview" hidden></div>
+              <label class="video-link-field" for="post-video-link"><span>▷</span><input id="post-video-link" type="url" inputmode="url" maxlength="1000" aria-label="Enlace de video de YouTube o video directo" placeholder="O pega un enlace de video de YouTube o .mp4/.webm" /><small>Solo videos públicos que tienes permiso para compartir.</small></label>
               <div class="composer-footer">
                 <div class="composer-tools">
                   <label class="attach-button" for="post-media" title="Añadir foto o video">▧ <span>Foto o video</span></label>
@@ -109,6 +111,8 @@
           </form>
           <div id="feed-status" class="feed-status" role="status" aria-live="polite"></div>
           <div id="posts-list" class="posts-list" aria-live="polite"></div>
+          <div id="feed-sentinel" class="load-sentinel" aria-hidden="true"></div>
+          <button id="load-more-posts" class="button button-secondary load-more-posts" type="button" hidden>Cargar más publicaciones</button>
         </section>
 
         <section id="explore-view" class="main-column view-section" hidden aria-live="polite">
@@ -116,6 +120,14 @@
           <section class="explore-card"><form id="explore-form" class="explore-search" role="search"><label class="sr-only" for="explore-query">Buscar publicaciones o hashtag</label><input id="explore-query" maxlength="80" placeholder="Busca publicaciones o #hashtags" /><button class="button button-primary" type="submit">Buscar</button></form><div><p class="settings-label">TENDENCIAS</p><div id="trending-tags" class="trending-tags" aria-label="Hashtags en tendencia"></div></div></section>
           <div id="explore-status" class="feed-status" role="status" aria-live="polite"></div>
           <div id="explore-results" class="posts-list"></div>
+        </section>
+
+        <section id="reels-view" class="main-column view-section" hidden aria-live="polite">
+          <header class="view-heading"><div><p class="eyebrow">VIDEO EN SR</p><h1>Reels</h1></div><span class="live-pill"><i></i> En bucle</span></header>
+          <section class="reels-intro"><span class="reels-intro-icon">▷</span><div><b>Videos de la comunidad</b><p>Sube un video al publicar o comparte un enlace público autorizado. Los Reels cargan por tandas para cuidar tus datos.</p></div></section>
+          <div id="reels-status" class="feed-status" role="status" aria-live="polite"></div>
+          <div id="reels-list" class="reels-list" aria-live="polite"></div>
+          <button id="load-more-reels" class="button button-secondary reels-more" type="button" hidden>Cargar más Reels</button>
         </section>
 
         <section id="profile-view" class="main-column view-section" hidden aria-live="polite">
@@ -137,7 +149,7 @@
                 <form id="message-form" class="message-composer" novalidate>
                   <label class="attach-button compact" for="message-media" title="Adjuntar foto, video o audio">＋</label>
                   <input id="message-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,audio/mpeg,audio/webm,audio/ogg" hidden />
-                  <input id="message-content" maxlength="3000" type="text" placeholder="Escribe un mensaje" />
+                  <input id="message-content" maxlength="3000" type="text" placeholder="Escribe un mensaje o pega un enlace de video/audio" />
                   <button id="message-submit" class="send-button" type="submit" aria-label="Enviar mensaje">↑</button>
                 </form>
                 <div id="message-media-name" class="message-media-name" hidden></div>
@@ -168,6 +180,7 @@
       <nav class="mobile-nav" id="mobile-nav" aria-label="Navegación móvil" hidden>
         <button type="button" data-view="feed"><span>⌂</span><small>Inicio</small></button>
         <button type="button" data-view="explore"><span>⌕</span><small>Explorar</small></button>
+        <button type="button" data-view="reels"><span>▷</span><small>Reels</small></button>
         <button type="button" data-view="profile"><span>◎</span><small>Perfil</small></button>
         <button id="mobile-new-story" class="mobile-create" type="button" aria-label="Crear historia">＋</button>
         <button type="button" data-view="messages"><span>✉</span><small>Mensajes</small></button>
