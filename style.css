@@ -204,7 +204,7 @@ body[data-theme="dark"] .empty-state { border-color: #3d3a4d; }
 .profile-stats { display: flex; gap: 21px; margin-top: 19px; }
 .profile-stat { padding: 0; border: 0; color: var(--muted); background: transparent; font-size: 12px; text-align: left; }
 .profile-stat b { display: block; color: var(--ink); font-size: 15px; }
-.profile-actions { display: flex; gap: 8px; margin-top: 21px; }
+.profile-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 21px; }.profile-actions .follow-requests { flex-basis: 100%; }
 .private-profile-badge { display: inline-flex; margin-left: 7px; padding: 4px 7px; border-radius: 99px; color: var(--violet); background: var(--lavender); font-size: 10px; font-weight: 700; vertical-align: 3px; }.follow-requests { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }.follow-requests > b { display: block; margin-bottom: 9px; font-size: 12px; }.follow-request { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }.follow-request .avatar { width: 31px; height: 31px; font-size: 10px; }.follow-request > span { flex: 1; min-width: 0; overflow: hidden; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }.follow-request button { padding: 6px 8px; border: 0; border-radius: 7px; color: var(--violet); background: var(--lavender); font-size: 10px; font-weight: 700; }.follow-request button[data-reject-follow-request] { color: var(--danger); background: color-mix(in srgb, var(--danger) 11%, transparent); }
 .profile-posts-title { margin: 23px 4px 13px; color: var(--ink); font: 700 20px "Outfit", sans-serif; }
 .profile-highlights { margin-top: 16px; }.profile-highlights > p { margin: 0 0 9px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 1px; }.profile-highlights > div { display: flex; gap: 11px; overflow-x: auto; }.highlight-chip { display: grid; width: 62px; flex: 0 0 62px; gap: 5px; padding: 0; border: 0; color: var(--ink-soft); background: transparent; font-size: 10px; font-weight: 700; text-align: center; }.highlight-chip img, .highlight-chip > span { display: grid; width: 57px; height: 57px; place-items: center; object-fit: cover; border: 2px solid var(--line); border-radius: 50%; color: var(--violet); background: var(--lavender); }.highlight-chip b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -298,11 +298,12 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
 .contacts-heading { display: flex; align-items: center; justify-content: space-between; padding: 16px 14px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; }
 .contacts-heading button { border: 0; color: var(--violet); background: transparent; font-size: 16px; }
 .contacts-list { display: grid; gap: 2px; padding: 8px; }
-.contact { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; border: 0; border-radius: 10px; color: var(--ink-soft); background: transparent; text-align: left; }
+.contact { position: relative; display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; border: 0; border-radius: 10px; color: var(--ink-soft); background: transparent; text-align: left; }
 .contact:hover, .contact.active { background: var(--lavender); color: var(--ink); }
 .contact .avatar { width: 31px; height: 31px; border-radius: 10px 10px 10px 3px; font-size: 10px; }
 .contact-name { display: block; overflow: hidden; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .contact-handle { display: block; overflow: hidden; margin-top: 2px; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.contact-unread { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border: 2px solid var(--paper-solid); border-radius: 50%; background: var(--violet); box-shadow: 0 0 0 2px color-mix(in srgb, var(--violet) 16%, transparent); }
 .conversation-panel { display: flex; min-width: 0; flex-direction: column; }
 .conversation-empty { display: grid; flex: 1; place-content: center; gap: 6px; padding: 25px; color: var(--muted); text-align: center; }
 .conversation-empty strong { color: var(--ink); font: 700 20px "Outfit", sans-serif; }
@@ -379,16 +380,16 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
   .video-link-field { margin-bottom: 10px; }
   .post-card { padding: 14px; }
   .reels-list { max-height: calc(100vh - 220px); }.reel-card { min-height: min(640px, calc(100vh - 255px)); border-radius: 18px; }.reel-top { padding: 13px; }.reel-bottom { right: 12px; bottom: 13px; left: 13px; }.reel-copy p { font-size: 13px; }
-  .messages-panel { grid-template-columns: 125px minmax(0,1fr); min-height: 500px; }
-  .contact { padding: 7px; } .contact-handle { display: none; } .contact-name { font-size: 11px; }
-  .messages-list { min-height: 350px; max-height: 350px; padding: 12px; }
+  .messages-panel { grid-template-columns: 1fr; min-height: 0; }
+  .contacts-panel { border-right: 0; border-bottom: 1px solid var(--line); }.contacts-heading { padding: 10px 13px; }.contacts-list { display: flex; gap: 6px; min-height: 76px; padding: 8px 10px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }.contacts-list::-webkit-scrollbar { display: none; }
+  .contact { display: grid; flex: 0 0 68px; gap: 3px; justify-items: center; padding: 4px 2px; text-align: center; }.contact .avatar { width: 36px; height: 36px; }.contact > div { display: block; width: 100%; }.contact-handle { display: none; }.contact-name { overflow: hidden; font-size: 9px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }.contact-unread { top: 3px; right: 7px; }
+  .messages-list { min-height: min(46vh, 350px); max-height: min(46vh, 350px); padding: 12px; }
   .profile-hero { padding: 19px; }
   .profile-identity h1 { font-size: 24px; }
   .theme-choices { grid-template-columns: repeat(3, minmax(0,1fr)); }
-  .mobile-nav:not([hidden]) { position: fixed; z-index: 9; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); left: 12px; display: grid !important; grid-template-columns: repeat(7, 1fr); align-items: center; min-height: 62px; padding: 6px; border: 1px solid color-mix(in srgb, var(--line) 88%, transparent); border-radius: 18px; background: color-mix(in srgb, var(--paper-solid) 90%, transparent); box-shadow: 0 15px 40px rgba(15,12,25,.22); backdrop-filter: blur(16px); }
-  .mobile-nav button { display: grid; gap: 2px; min-height: 49px; place-content: center; border: 0; border-radius: 12px; color: var(--muted); background: transparent; }
-  .mobile-nav button span { font-size: 18px; }.mobile-nav button small { font-size: 9px; font-weight: 700; }.mobile-nav button.active { color: var(--violet); background: var(--lavender); }
-  .mobile-nav .mobile-create { width: 42px; height: 42px; min-height: auto; justify-self: center; border-radius: 14px; color: #fff; background: linear-gradient(135deg,var(--violet),#a94ff2); box-shadow: 0 7px 16px rgba(109,74,255,.32); font-size: 25px; }
+  .mobile-nav:not([hidden]) { position: fixed; z-index: 9; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); left: 12px; display: grid !important; grid-template-columns: repeat(5, 1fr); align-items: center; min-height: 64px; padding: 6px; border: 1px solid color-mix(in srgb, var(--line) 88%, transparent); border-radius: 18px; background: color-mix(in srgb, var(--paper-solid) 92%, transparent); box-shadow: 0 15px 40px rgba(15,12,25,.22); backdrop-filter: blur(16px); }
+  .mobile-nav button { display: grid; gap: 3px; min-height: 50px; place-content: center; border: 0; border-radius: 13px; color: var(--muted); background: transparent; transition: color .16s, background .16s; }
+  .mobile-nav button span { font-size: 19px; }.mobile-nav button small { font-size: 9px; font-weight: 700; }.mobile-nav button.active { color: var(--violet); background: var(--lavender); }
   .story-viewer { min-height: 570px; }.story-viewer-media { min-height: 350px; }
   .explore-search .button { padding: 9px 11px; font-size: 11px; }
 }
@@ -403,10 +404,8 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
   .composer-tools { gap: 7px; }
   .video-link-field input { font-size: 11px; }
   .reels-intro { align-items: flex-start; }.reels-intro p { font-size: 10px; }.reels-list { min-height: 280px; max-height: calc(100vh - 215px); }.reel-card { min-height: min(570px, calc(100vh - 245px)); }.reel-actions { gap: 5px; }.reel-action { min-width: 38px; min-height: 37px; font-size: 15px; }
-  .messages-panel { grid-template-columns: 66px minmax(0,1fr); }
-  .contacts-heading span { display: none; }
-  .contacts-heading { justify-content: center; }
-  .contact { justify-content: center; padding: 7px 3px; } .contact > div { display: none; }
+  .mobile-nav:not([hidden]) { right: 8px; bottom: calc(8px + env(safe-area-inset-bottom)); left: 8px; padding: 5px; border-radius: 16px; }.mobile-nav button { min-height: 49px; }.mobile-nav button span { font-size: 18px; }
+  .contacts-list { min-height: 72px; padding-inline: 8px; }.contact { flex-basis: 62px; }.contact .avatar { width: 34px; height: 34px; }.contact-name { font-size: 8px; }
   .comment-form .button { padding: 8px 10px; font-size: 11px; }
   .theme-choices { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }

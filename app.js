@@ -51,6 +51,10 @@ let refreshTimer = null;
 let toastTimer = null;
 let appLoadId = 0;
 let contacts = [];
+let contactUnreadIds = new Set();
+let contactActivity = new Map();
+let contactsLoading = false;
+let contactsReloadQueued = false;
 let storyGroups = new Map();
 let activeStoryQueue = [];
 let activeStoryIndex = -1;
@@ -856,7 +860,7 @@ async function showProfile(id = currentUser.id) {
           <button class="profile-stat" type="button"><b>${canSeeFollowerCount ? compactNumber(effectiveFollowers(profile)) : '—'}</b>${canSeeFollowerCount ? 'seguidores' : 'seguidores privados'}</button>
         </div>
         <div class="profile-actions">
-          ${ownProfile ? '<button id="profile-edit-page" class="button button-secondary" type="button">Editar perfil</button><section id="pending-follow-requests" class="follow-requests"></section>' : `<button id="follow-button" class="button ${follows || pending ? 'button-secondary' : 'button-primary'}" type="button" data-following="${follows}" data-pending="${pending}">${followLabel}</button><button id="profile-message-button" class="button button-secondary" type="button">Mensaje</button>`}
+          ${ownProfile ? '<button id="profile-edit-page" class="button button-secondary" type="button">Editar perfil</button><button id="profile-settings-button" class="button button-secondary" type="button">⚙ Ajustes</button><section id="pending-follow-requests" class="follow-requests"></section>' : `<button id="follow-button" class="button ${follows || pending ? 'button-secondary' : 'button-primary'}" type="button" data-following="${follows}" data-pending="${pending}">${followLabel}</button><button id="profile-message-button" class="button button-secondary" type="button">Mensaje</button>`}
         </div>
       </section>
       <section id="profile-highlights" class="profile-highlights" aria-label="Historias destacadas"></section>
@@ -875,6 +879,7 @@ async function showProfile(id = currentUser.id) {
     }
 
     $('#profile-edit-page')?.addEventListener('click', openProfileDialog);
+    $('#profile-settings-button')?.addEventListener('click', async () => { setActiveView('settings'); await loadSettings(); });
     $('#follow-button')?.addEventListener('click', () => toggleFollow(profile, follows, pending));
     $('#profile-message-button')?.addEventListener('click', async () => { await openChat(profile); });
   } catch (error) {
@@ -967,20 +972,69 @@ function renderContacts() {
   if (!contacts.length) { list.innerHTML = '<p class="notification-empty">Aún no hay otras personas.</p>'; return; }
   list.innerHTML = contacts.map((profile) => {
     const active = selectedChat?.id === profile.id;
-    return `<button class="contact${active ? ' active' : ''}" type="button" data-contact-id="${profile.id}">${avatarMarkup(profile)}<div><span class="contact-name">${escapeHtml(profile.display_name || 'Miembro de SR')}</span><span class="contact-handle">${escapeHtml(usernameFor(profile))}</span></div></button>`;
+    const unread = contactUnreadIds.has(profile.id);
+    return `<button class="contact${active ? ' active' : ''}" type="button" data-contact-id="${profile.id}">${avatarMarkup(profile)}<div><span class="contact-name">${escapeHtml(profile.display_name || 'Miembro de SR')}</span><span class="contact-handle">${escapeHtml(usernameFor(profile))}</span></div>${unread ? '<i class="contact-unread" aria-label="Mensaje sin leer"></i>' : ''}</button>`;
   }).join('');
 }
 
 async function loadContacts() {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select(PROFILE_FIELDS)
-    .neq('id', currentUser.id)
-    .order('follower_count', { ascending: false })
-    .limit(40);
-  if (error) throw error;
-  contacts = data;
-  renderContacts();
+  if (!currentUser) return;
+  if (contactsLoading) { contactsReloadQueued = true; return; }
+  contactsLoading = true;
+  try {
+    // Primero se muestran las personas con las que ya hay conversación. Así
+    // quien acaba de escribir nunca queda oculto detrás de sugerencias.
+    const { data: activityRows, error: activityError } = await supabase
+      .from('messages')
+      .select('sender_id, receiver_id, seen_at, created_at')
+      .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
+      .order('created_at', { ascending: false })
+      .limit(160);
+    if (activityError) throw activityError;
+
+    const conversationIds = [];
+    const seenIds = new Set();
+    contactActivity = new Map();
+    contactUnreadIds = new Set();
+    (activityRows || []).forEach((message) => {
+      const contactId = message.sender_id === currentUser.id ? message.receiver_id : message.sender_id;
+      if (!contactId || contactId === currentUser.id) return;
+      if (!seenIds.has(contactId)) { seenIds.add(contactId); conversationIds.push(contactId); }
+      if (!contactActivity.has(contactId)) contactActivity.set(contactId, message.created_at);
+      if (message.receiver_id === currentUser.id && !message.seen_at) contactUnreadIds.add(contactId);
+    });
+
+    const conversationProfiles = conversationIds.length
+      ? await supabase.from('profiles').select(PROFILE_FIELDS).in('id', conversationIds)
+      : { data: [], error: null };
+    if (conversationProfiles.error) throw conversationProfiles.error;
+    const { data: suggestedProfiles, error: suggestedError } = await supabase
+      .from('profiles')
+      .select(PROFILE_FIELDS)
+      .neq('id', currentUser.id)
+      .order('follower_count', { ascending: false })
+      .limit(40);
+    if (suggestedError) throw suggestedError;
+
+    const merged = new Map();
+    (conversationProfiles.data || []).forEach((profile) => merged.set(profile.id, profile));
+    if (selectedChat) merged.set(selectedChat.id, selectedChat);
+    (suggestedProfiles || []).forEach((profile) => { if (!merged.has(profile.id)) merged.set(profile.id, profile); });
+    contacts = [...merged.values()].sort((a, b) => {
+      const recentA = contactActivity.get(a.id);
+      const recentB = contactActivity.get(b.id);
+      if (recentA || recentB) return new Date(recentB || 0) - new Date(recentA || 0);
+      return effectiveFollowers(b) - effectiveFollowers(a);
+    }).slice(0, 50);
+    renderContacts();
+    $('#messages-nav-dot').hidden = contactUnreadIds.size === 0;
+  } finally {
+    contactsLoading = false;
+    if (contactsReloadQueued) {
+      contactsReloadQueued = false;
+      loadContacts().catch((error) => console.warn('No pudimos actualizar contactos pendientes.', error));
+    }
+  }
 }
 
 function messageMarkup(message, messagesById, reactionsByMessage) {
@@ -996,8 +1050,10 @@ function messageMarkup(message, messagesById, reactionsByMessage) {
   return `<article class="message-bubble${mine ? ' mine' : ''}" data-message-id="${message.id}">${reply}${message.media_url ? mediaMarkup(message.media_url, message.media_type, 'message-media', message.media_provider) : ''}${message.content ? `<span>${escapeHtml(message.content).replaceAll('\n', '<br>')}</span>` : ''}<div class="message-reactions">${reactionMarkup}</div><div class="message-actions"><button type="button" data-message-reply="${message.id}">Responder</button>${mine ? `<button type="button" data-message-delete="${message.id}">Eliminar</button>` : ''}</div><time>${escapeHtml(prettyDate(message.created_at))}</time></article>`;
 }
 
-async function loadMessages() {
+async function loadMessages({ scrollToLatest = false } = {}) {
   if (!selectedChat) return;
+  const scroll = $('#messages-list');
+  const wasNearBottom = scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 110;
   const { data, error } = await supabase
     .from('messages')
     .select('id, sender_id, receiver_id, content, media_url, media_type, media_provider, media_public_id, reply_to_id, seen_at, created_at')
@@ -1014,10 +1070,10 @@ async function loadMessages() {
   const reactionsByMessage = new Map(messageIds.map((id) => [id, []]));
   reactions.forEach((reaction) => reactionsByMessage.get(reaction.message_id)?.push(reaction));
   $('#messages-list').innerHTML = data.length ? data.map((message) => messageMarkup(message, messagesById, reactionsByMessage)).join('') : '<div class="conversation-empty"><strong>Inicia la conversación</strong><span>Envía el primer mensaje.</span></div>';
-  const scroll = $('#messages-list');
-  scroll.scrollTop = scroll.scrollHeight;
-  await supabase.from('messages').update({ seen_at: new Date().toISOString() }).eq('sender_id', selectedChat.id).eq('receiver_id', currentUser.id).is('seen_at', null);
-  $('#messages-nav-dot').hidden = true;
+  if (scrollToLatest || wasNearBottom) scroll.scrollTop = scroll.scrollHeight;
+  const { error: seenError } = await supabase.from('messages').update({ seen_at: new Date().toISOString() }).eq('sender_id', selectedChat.id).eq('receiver_id', currentUser.id).is('seen_at', null);
+  if (seenError) console.warn('No pudimos marcar los mensajes como leídos.', seenError);
+  await loadContacts();
 }
 
 async function openChat(profile) {
@@ -1028,7 +1084,7 @@ async function openChat(profile) {
   $('#conversation-content').hidden = false;
   $('#conversation-header').innerHTML = `${avatarMarkup(profile)}<div><strong>${escapeHtml(profile.display_name || 'Miembro de SR')}${badgeMarkup(profile)}</strong><span>${escapeHtml(usernameFor(profile))}</span></div>`;
   startChatPresence();
-  await loadMessages();
+  await loadMessages({ scrollToLatest: true });
 }
 
 function clearReply() {
@@ -1305,7 +1361,10 @@ async function uploadMedia(file, kind = 'post') {
 async function refreshActiveContent() {
   if (!currentUser) return;
   if (activeView === 'profile') await showProfile(viewedProfileId || currentUser.id);
-  else if (activeView === 'messages' && selectedChat) await loadMessages();
+  else if (activeView === 'messages') {
+    if (selectedChat) await loadMessages();
+    else await loadContacts();
+  }
   else if (activeView === 'settings') await loadSettings();
   else if (activeView === 'explore') await loadExplore();
   else if (activeView === 'reels') await loadReels();
@@ -1322,6 +1381,16 @@ function scheduleLiveRefresh() {
   }, 450);
 }
 
+async function handleRealtimeMessage(payload) {
+  if (!currentUser) return;
+  const message = payload?.new || payload?.old;
+  if (message?.sender_id && message?.receiver_id
+    && message.sender_id !== currentUser.id && message.receiver_id !== currentUser.id) return;
+  await loadContacts();
+  const otherPerson = message?.sender_id === currentUser.id ? message.receiver_id : message?.sender_id;
+  if (activeView === 'messages' && selectedChat && otherPerson === selectedChat.id) await loadMessages();
+}
+
 function startRealtime() {
   if (realtimeChannel) supabase.removeChannel(realtimeChannel);
   realtimeChannel = supabase.channel(`sr-live-${currentUser.id}`)
@@ -1331,7 +1400,9 @@ function startRealtime() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'reposts' }, scheduleLiveRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'follows' }, scheduleLiveRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, scheduleLiveRefresh)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, scheduleLiveRefresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
+      handleRealtimeMessage(payload).catch((error) => console.warn('No pudimos actualizar el mensaje.', error));
+    })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, scheduleLiveRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'follow_requests' }, scheduleLiveRefresh)
     .on('postgres_changes', { event: '*', schema: 'public', table: 'stories' }, scheduleLiveRefresh)
@@ -1456,7 +1527,7 @@ authForm.addEventListener('submit', async (event) => {
 $$('[data-view]').forEach((button) => button.addEventListener('click', async () => {
   const view = button.dataset.view;
   if (view === 'profile') await showProfile(currentUser.id);
-  else if (view === 'messages') { setActiveView('messages'); if (!selectedChat) await loadContacts(); }
+  else if (view === 'messages') { setActiveView('messages'); await loadContacts(); if (selectedChat) await loadMessages(); }
   else if (view === 'settings') { setActiveView('settings'); await loadSettings(); }
   else if (view === 'explore') { setActiveView('explore'); await loadExplore(); }
   else if (view === 'reels') { setActiveView('reels'); await loadReels(); }
@@ -1658,7 +1729,7 @@ function openStoryDialog() {
   storyDialog.showModal();
 }
 
-['#new-story-button', '#feed-new-story', '#mobile-new-story'].forEach((selector) => $(selector).addEventListener('click', openStoryDialog));
+['#feed-new-story'].forEach((selector) => $(selector)?.addEventListener('click', openStoryDialog));
 $$('.close-story-dialog').forEach((button) => button.addEventListener('click', () => storyDialog.close()));
 $('#story-media').addEventListener('change', (event) => {
   selectedStoryMedia = event.target.files?.[0] || null;
