@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#6657ff" />
+    <meta name="description" content="SR — Sin Restricciones. Comparte, conversa y conecta." />
+    <title>SR — Sin Restricciones</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#inicio" aria-label="SR, inicio">
+        <span class="brand-mark">SR</span>
+        <span class="brand-name">SR <small>sin restricciones</small></span>
+      </a>
+      <div class="header-actions">
+        <div class="user-search"><span>⌕</span><input id="user-search-input" type="search" autocomplete="off" placeholder="Buscar personas" aria-label="Buscar personas" /><div id="user-search-results" class="user-search-results" hidden></div></div>
+        <button class="round-button" id="theme-toggle" type="button" aria-label="Activar modo oscuro" title="Cambiar tema">☾</button>
+        <button class="round-button notification-trigger" id="notifications-toggle" type="button" aria-label="Ver notificaciones" title="Notificaciones" hidden>
+          ♧<b id="notification-badge" hidden>0</b>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section id="auth-view" class="auth-layout" aria-labelledby="hero-title">
+        <article class="hero-copy">
+          <p class="eyebrow">SR · SIN RESTRICCIONES</p>
+          <h1 id="hero-title">Tu voz. Tu espacio.</h1>
+          <p class="hero-description">Una red para compartir ideas, descubrir personas y conversar sin perder tu esencia.</p>
+          <div class="hero-points" aria-label="Características de SR">
+            <div><span>✦</span> Publicaciones, fotos y videos</div>
+            <div><span>✦</span> Mensajes en tiempo real</div>
+            <div><span>✦</span> Tu comunidad, a tu manera</div>
+          </div>
+        </article>
+
+        <section class="auth-card" aria-label="Acceso a SR">
+          <div class="auth-card-heading">
+            <p class="eyebrow">ENTRA A SR</p>
+            <h2 id="auth-title">Crea tu cuenta</h2>
+            <p id="auth-subtitle">Es gratis y solo te tomará un momento.</p>
+          </div>
+          <div class="auth-tabs" role="tablist" aria-label="Acceso">
+            <button class="auth-tab active" type="button" data-auth-mode="register" role="tab" aria-selected="true">Crear cuenta</button>
+            <button class="auth-tab" type="button" data-auth-mode="login" role="tab" aria-selected="false">Iniciar sesión</button>
+          </div>
+          <form id="auth-form" novalidate>
+            <label id="display-name-field" class="field"><span>¿Cómo te llamamos?</span><input id="display-name" type="text" autocomplete="name" maxlength="60" placeholder="Tu nombre" /></label>
+            <label class="field"><span>Correo electrónico</span><input id="auth-email" type="email" autocomplete="email" required placeholder="tu@correo.com" /></label>
+            <label class="field"><span>Contraseña</span><input id="auth-password" type="password" autocomplete="current-password" required minlength="8" placeholder="Mínimo 8 caracteres" /></label>
+            <button id="auth-submit" class="button button-primary button-full" type="submit">Crear mi cuenta <span>→</span></button>
+          </form>
+          <p class="auth-footnote">Al continuar te comprometes a cuidar la comunidad SR.</p>
+        </section>
+      </section>
+
+      <section id="app-view" class="app-layout" hidden aria-label="SR">
+        <aside class="left-rail">
+          <nav class="primary-nav" aria-label="Navegación">
+            <button class="nav-link active" type="button" data-view="feed"><span>⌂</span> Inicio</button>
+            <button class="nav-link" type="button" data-view="explore"><span>⌕</span> Explorar</button>
+            <button class="nav-link" type="button" data-view="profile"><span>◎</span> Perfil</button>
+            <button class="nav-link" type="button" data-view="messages"><span>✉</span> Mensajes <i id="messages-nav-dot" hidden></i></button>
+            <button class="nav-link" type="button" data-view="settings"><span>⚙</span> Ajustes</button>
+          </nav>
+          <button id="new-story-button" class="new-story-button" type="button">＋ Crear historia</button>
+          <button id="refresh-button" class="refresh-button" type="button">↻ Actualizar</button>
+          <section class="mini-profile">
+            <div class="avatar avatar-large" id="sidebar-avatar">SR</div>
+            <div><p id="mini-profile-name" class="mini-profile-name">Tu perfil</p><p id="sidebar-username" class="mini-profile-handle">@usuario</p></div>
+            <button class="text-button" id="sidebar-edit-profile" type="button">Editar</button>
+          </section>
+          <button id="sign-out-button" class="sign-out" type="button">Cerrar sesión</button>
+        </aside>
+
+        <section id="feed-view" class="main-column view-section">
+          <header class="view-heading">
+            <div><p class="eyebrow">COMUNIDAD SR</p><h1>Inicio</h1></div>
+            <span class="live-pill"><i></i> En tiempo real</span>
+          </header>
+          <section class="stories-section" aria-labelledby="stories-title"><div class="stories-heading"><h2 id="stories-title">Historias</h2><button id="feed-new-story" class="text-button" type="button">Crear</button></div><div id="stories-list" class="stories-list"></div></section>
+          <form id="post-form" class="composer" novalidate>
+            <div class="avatar" id="composer-avatar">SR</div>
+            <div class="composer-main">
+              <label class="sr-only" for="post-content">Escribe una publicación</label>
+              <textarea id="post-content" maxlength="1000" placeholder="¿Qué quieres compartir hoy?"></textarea>
+              <div id="post-media-preview" class="media-preview" hidden></div>
+              <div class="composer-footer">
+                <div class="composer-tools">
+                  <label class="attach-button" for="post-media" title="Añadir foto o video">▧ <span>Foto o video</span></label>
+                  <input id="post-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" hidden />
+                  <span id="character-count" class="character-count">0 / 1000</span>
+                </div>
+                <button id="post-submit" class="button button-primary" type="submit">Publicar <span>↑</span></button>
+              </div>
+            </div>
+          </form>
+          <div id="feed-status" class="feed-status" role="status" aria-live="polite"></div>
+          <div id="posts-list" class="posts-list" aria-live="polite"></div>
+        </section>
+
+        <section id="explore-view" class="main-column view-section" hidden aria-live="polite">
+          <header class="view-heading"><div><p class="eyebrow">DESCUBRE SR</p><h1>Explorar</h1></div></header>
+          <section class="explore-card"><form id="explore-form" class="explore-search" role="search"><label class="sr-only" for="explore-query">Buscar publicaciones o hashtag</label><input id="explore-query" maxlength="80" placeholder="Busca publicaciones o #hashtags" /><button class="button button-primary" type="submit">Buscar</button></form><div><p class="settings-label">TENDENCIAS</p><div id="trending-tags" class="trending-tags" aria-label="Hashtags en tendencia"></div></div></section>
+          <div id="explore-status" class="feed-status" role="status" aria-live="polite"></div>
+          <div id="explore-results" class="posts-list"></div>
+        </section>
+
+        <section id="profile-view" class="main-column view-section" hidden aria-live="polite">
+          <div id="profile-page-content"></div>
+          <div id="profile-posts-list" class="posts-list profile-posts-list"></div>
+        </section>
+
+        <section id="messages-view" class="main-column view-section" hidden>
+          <header class="view-heading"><div><p class="eyebrow">CONVERSACIONES</p><h1>Mensajes</h1></div></header>
+          <div class="messages-panel">
+            <aside class="contacts-panel"><div class="contacts-heading"><span>Personas</span><button id="reload-contacts" type="button" title="Actualizar personas">↻</button></div><div id="contacts-list" class="contacts-list"></div></aside>
+            <section class="conversation-panel">
+              <div id="conversation-empty" class="conversation-empty"><strong>Elige una persona</strong><span>Podrás enviar texto, fotos, videos y audios.</span></div>
+              <div id="conversation-content" hidden>
+                <header id="conversation-header" class="conversation-header"></header>
+                <div id="messages-list" class="messages-list"></div>
+                <p id="typing-indicator" class="typing-indicator" hidden></p>
+                <div id="reply-context" class="reply-context" hidden></div>
+                <form id="message-form" class="message-composer" novalidate>
+                  <label class="attach-button compact" for="message-media" title="Adjuntar foto, video o audio">＋</label>
+                  <input id="message-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,audio/mpeg,audio/webm,audio/ogg" hidden />
+                  <input id="message-content" maxlength="3000" type="text" placeholder="Escribe un mensaje" />
+                  <button id="message-submit" class="send-button" type="submit" aria-label="Enviar mensaje">↑</button>
+                </form>
+                <div id="message-media-name" class="message-media-name" hidden></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="settings-view" class="main-column view-section" hidden>
+          <header class="view-heading"><div><p class="eyebrow">TU EXPERIENCIA</p><h1>Ajustes</h1></div></header>
+          <form id="settings-form" class="settings-card" novalidate>
+            <section><p class="settings-label">APARIENCIA</p><h2>Personaliza tu fondo</h2><p class="settings-help">Este tema se muestra en tu perfil y en tu experiencia de SR.</p><div class="theme-choices" role="radiogroup" aria-label="Tema de perfil"><label class="theme-choice nebula"><input type="radio" name="profile-theme" value="nebula" />Nebula</label><label class="theme-choice ocean"><input type="radio" name="profile-theme" value="ocean" />Océano</label><label class="theme-choice sunset"><input type="radio" name="profile-theme" value="sunset" />Atardecer</label><label class="theme-choice forest"><input type="radio" name="profile-theme" value="forest" />Bosque</label><label class="theme-choice rose"><input type="radio" name="profile-theme" value="rose" />Rosa</label></div><label class="background-upload" for="background-image-input"><span>▧</span><b>Usar una imagen de fondo</b><small>Se optimiza antes de guardarse. Puedes dejarlo vacío para usar solo el tema.</small></label><input id="background-image-input" type="file" accept="image/jpeg,image/png,image/webp" hidden /><div id="background-image-preview" class="background-image-preview" hidden></div></section>
+            <section class="settings-group"><p class="settings-label">NOTIFICACIONES Y PRIVACIDAD</p><label class="setting-row"><span><b>Notificaciones por correo</b><small>Recibe avisos importantes en tu email.</small></span><input id="email-notifications" type="checkbox" /></label><label class="setting-row"><span><b>Notificaciones en SR</b><small>Muestra alertas dentro de la aplicación.</small></span><input id="push-notifications" type="checkbox" /></label><label class="setting-row"><span><b>Estado de actividad</b><small>Permite mostrar que estás activo.</small></span><input id="show-activity" type="checkbox" /></label><label class="setting-row"><span><b>Cuenta privada</b><small>Solo tus seguidores aprobados verán tus publicaciones e historias.</small></span><input id="account-private" type="checkbox" /></label><label class="setting-row"><span><b>Mostrar número de seguidores</b><small>Ocúltalo en los perfiles de otras personas.</small></span><input id="show-follower-count" type="checkbox" /></label><label class="field message-permission"><span>Quién puede enviarte mensajes</span><select id="allow-messages-from"><option value="everyone">Todas las personas</option><option value="following">Solo personas que sigues</option></select></label><label class="field message-permission"><span>Quién puede comentar tus publicaciones</span><select id="comments-from"><option value="everyone">Todas las personas</option><option value="following">Solo tus seguidores</option><option value="nobody">Nadie</option></select></label></section>
+            <button id="save-settings-button" class="button button-primary" type="submit">Guardar ajustes</button>
+          </form>
+        </section>
+
+        <aside class="right-rail" aria-label="Resumen de cuenta">
+          <section class="side-card profile-card">
+            <div class="side-card-top"><span>MI PERFIL</span><button class="icon-button" id="top-edit-profile" type="button" aria-label="Editar perfil">✎</button></div>
+            <div class="profile-card-main"><div class="avatar avatar-xl" id="profile-avatar">SR</div><h2 id="profile-name">Tu perfil</h2><p id="profile-handle">@usuario</p><p id="profile-bio" class="profile-bio">Añade una bio para que la comunidad te conozca.</p></div>
+            <div class="mini-stats"><span><b id="sidebar-post-count">0</b> posts</span><span><b id="sidebar-follower-count">0</b> seguidores</span></div>
+          </section>
+          <section class="side-card notifications-card"><div class="side-card-top"><span>NOTIFICACIONES</span><button id="mark-notifications-read" class="text-button" type="button">Leer todas</button></div><div id="notification-list" class="notification-list"></div></section>
+        </aside>
+      </section>
+
+      <nav class="mobile-nav" id="mobile-nav" aria-label="Navegación móvil" hidden>
+        <button type="button" data-view="feed"><span>⌂</span><small>Inicio</small></button>
+        <button type="button" data-view="explore"><span>⌕</span><small>Explorar</small></button>
+        <button type="button" data-view="profile"><span>◎</span><small>Perfil</small></button>
+        <button id="mobile-new-story" class="mobile-create" type="button" aria-label="Crear historia">＋</button>
+        <button type="button" data-view="messages"><span>✉</span><small>Mensajes</small></button>
+        <button type="button" data-view="settings"><span>⚙</span><small>Ajustes</small></button>
+      </nav>
+    </main>
+
+    <dialog id="profile-dialog" class="dialog profile-dialog" aria-labelledby="profile-dialog-title">
+      <form id="profile-form" novalidate>
+        <div class="dialog-heading"><div><p class="eyebrow">PERSONALIZA TU ESPACIO</p><h2 id="profile-dialog-title">Edita tu perfil</h2></div><button class="icon-button close-dialog" type="button" aria-label="Cerrar">×</button></div>
+        <label class="field"><span>Nombre visible</span><input id="profile-display-name" type="text" maxlength="60" required placeholder="Tu nombre" /></label>
+        <label class="field"><span>Nombre de usuario</span><input id="profile-username" type="text" maxlength="30" placeholder="ejemplo_usuario" /><small>Solo letras, números y guion bajo.</small></label>
+        <label class="field"><span>Bio</span><textarea id="profile-bio-input" maxlength="160" placeholder="Cuéntale algo breve a SR."></textarea></label>
+        <label class="field"><span>Foto de perfil</span><input id="profile-avatar-input" type="file" accept="image/jpeg,image/png,image/webp" /><small>Usaremos una imagen cuadrada y optimizada.</small></label>
+        <div id="profile-avatar-preview" class="profile-avatar-preview" hidden></div>
+        <div class="dialog-actions"><button class="button button-secondary close-dialog" type="button">Cancelar</button><button id="save-profile-button" class="button button-primary" type="submit">Guardar cambios</button></div>
+      </form>
+    </dialog>
+
+    <dialog id="edit-post-dialog" class="dialog edit-post-dialog" aria-labelledby="edit-post-dialog-title">
+      <form id="edit-post-form" novalidate><div class="dialog-heading"><div><p class="eyebrow">ACTUALIZA TU VOZ</p><h2 id="edit-post-dialog-title">Editar publicación</h2></div><button class="icon-button close-edit-post-dialog" type="button" aria-label="Cerrar">×</button></div><label class="field"><span>Contenido</span><textarea id="edit-post-content" maxlength="1000" required></textarea></label><p class="dialog-note">La foto o el video actual se mantienen. Puedes borrar y crear otra publicación si quieres cambiar el archivo.</p><div class="dialog-actions"><button class="button button-secondary close-edit-post-dialog" type="button">Cancelar</button><button id="save-post-button" class="button button-primary" type="submit">Guardar cambios</button></div></form>
+    </dialog>
+
+    <dialog id="story-dialog" class="dialog story-dialog" aria-labelledby="story-dialog-title">
+      <form id="story-form" novalidate><div class="dialog-heading"><div><p class="eyebrow">DURA 12 HORAS</p><h2 id="story-dialog-title">Nueva historia</h2></div><button class="icon-button close-story-dialog" type="button" aria-label="Cerrar">×</button></div><label class="story-upload" for="story-media"><span>▧</span><b>Elige una foto o video</b><small>Se eliminará automáticamente de SR en 12 horas.</small></label><input id="story-media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm" hidden required /><div id="story-media-preview" class="story-media-preview" hidden></div><label class="field"><span>Texto opcional</span><textarea id="story-caption" maxlength="300" placeholder="Añade un momento a tu historia"></textarea></label><div class="dialog-actions"><button class="button button-secondary close-story-dialog" type="button">Cancelar</button><button id="publish-story-button" class="button button-primary" type="submit">Publicar historia</button></div></form>
+    </dialog>
+
+    <dialog id="story-viewer-dialog" class="story-viewer-dialog" aria-label="Historia">
+      <div id="story-viewer-content"></div>
+      <button class="story-close" id="close-story-viewer" type="button" aria-label="Cerrar historia">×</button>
+    </dialog>
+
+    <dialog id="post-dialog" class="dialog post-dialog" aria-labelledby="post-dialog-title">
+      <div class="dialog-heading"><h2 id="post-dialog-title">Publicación</h2><button class="icon-button close-post-dialog" type="button" aria-label="Cerrar">×</button></div>
+      <div id="focused-post"></div>
+      <section class="comments-section"><h3>Comentarios <span id="comments-total">0</span></h3><div id="comments-list" class="comments-list"></div><form id="comment-form" class="comment-form" novalidate><input id="comment-content" maxlength="1000" placeholder="Escribe un comentario" /><button class="button button-primary" type="submit">Comentar</button></form></section>
+    </dialog>
+
+    <dialog id="notifications-dialog" class="dialog notifications-dialog" aria-labelledby="notifications-dialog-title">
+      <div class="dialog-heading"><div><p class="eyebrow">AL DÍA</p><h2 id="notifications-dialog-title">Notificaciones</h2></div><button class="icon-button close-notifications-dialog" type="button" aria-label="Cerrar">×</button></div><div id="notification-list-dialog" class="notification-list"></div>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
