@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">SR — Sin Restricciones</title>
+  <desc id="description">Logotipo morado con las letras SR</desc>
+  <defs>
+    <linearGradient id="sr-gradient" x1="56" y1="38" x2="460" y2="472" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9C72FF"/>
+      <stop offset=".52" stop-color="#6948FF"/>
+      <stop offset="1" stop-color="#3F2AAE"/>
+    </linearGradient>
+    <linearGradient id="sr-glow" x1="256" y1="68" x2="256" y2="443" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF" stop-opacity=".96"/>
+      <stop offset="1" stop-color="#E9E3FF"/>
+    </linearGradient>
+    <filter id="sr-shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="16" flood-color="#25116D" flood-opacity=".36"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="142" fill="url(#sr-gradient)"/>
+  <path d="M72 110C127 72 211 50 301 71c80 19 120 66 139 115-64-49-143-59-220-38-58 16-97 47-132 90-24-42-27-83-16-128Z" fill="#FFF" fill-opacity=".11"/>
+  <g filter="url(#sr-shadow)" fill="url(#sr-glow)">
+    <path d="M124 177c30-34 72-51 119-51 31 0 60 7 85 21l-25 55c-18-10-38-15-59-15-23 0-41 7-41 23 0 15 15 20 47 30 49 15 88 37 88 91 0 63-52 96-118 96-47 0-92-15-122-45l32-52c24 24 57 38 90 38 26 0 43-10 43-27 0-19-21-25-58-37-43-14-76-35-76-84 0-36 14-66 40-96Z"/>
+    <path d="M344 138h47c70 0 114 37 114 105 0 42-19 75-51 94l56 75h-77l-43-62h-2v62h-64V138h20Zm44 55v103c31-1 52-19 52-52 0-32-20-50-52-51Z"/>
+  </g>
+  <circle cx="405" cy="111" r="17" fill="#FFF" fill-opacity=".7"/>
+</svg>
