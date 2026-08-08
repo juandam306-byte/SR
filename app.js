@@ -76,6 +76,12 @@ let feedOffset = 0;
 let feedExhausted = false;
 let feedLoading = false;
 let feedObserver = null;
+let savedOffset = 0;
+let savedExhausted = false;
+let savedLoading = false;
+let replyingToCommentId = null;
+const profileCache = new Map();
+const PROFILE_CACHE_TTL = 30000;
 
 function escapeHtml(value = '') {
   return String(value)
@@ -275,11 +281,9 @@ function selectedFilePreview(file, target, onRemove) {
 }
 
 function setTheme(theme) {
-  document.body.dataset.theme = theme;
-  localStorage.setItem('sr-theme', theme);
-  const dark = theme === 'dark';
-  $('#theme-toggle').textContent = dark ? '☀' : '☾';
-  $('#theme-toggle').setAttribute('aria-label', dark ? 'Activar modo claro' : 'Activar modo oscuro');
+  const normalized = theme === 'light' ? 'light' : 'dark';
+  document.body.dataset.theme = normalized;
+  localStorage.setItem('sr-theme', normalized);
 }
 
 function setAuthMode(mode) {
@@ -328,13 +332,17 @@ function renderCurrentProfile() {
   }
 }
 
-async function getProfile(id) {
+async function getProfile(id, { force = false } = {}) {
+  if (!id) return null;
+  const cached = profileCache.get(id);
+  if (!force && cached && (Date.now() - cached.time) < PROFILE_CACHE_TTL) return cached.value;
   const { data, error } = await supabase
     .from('profiles')
     .select(PROFILE_FIELDS)
     .eq('id', id)
     .maybeSingle();
   if (error) throw error;
+  profileCache.set(id, { value: data, time: Date.now() });
   return data;
 }
 
@@ -346,27 +354,36 @@ async function loadCurrentProfile() {
 async function profilesForIds(ids) {
   const uniqueIds = [...new Set(ids.filter(Boolean))];
   const map = new Map();
-  if (!uniqueIds.length) return map;
+  const missing = [];
+  uniqueIds.forEach((id) => {
+    const cached = profileCache.get(id);
+    if (cached && (Date.now() - cached.time) < PROFILE_CACHE_TTL) map.set(id, cached.value);
+    else missing.push(id);
+  });
+  if (!missing.length) return map;
   const { data, error } = await supabase
     .from('profiles')
     .select(PROFILE_FIELDS)
-    .in('id', uniqueIds);
+    .in('id', missing);
   if (error) throw error;
-  data.forEach((profile) => map.set(profile.id, profile));
+  data.forEach((profile) => { profileCache.set(profile.id, { value: profile, time: Date.now() }); map.set(profile.id, profile); });
   return map;
 }
 
 async function reactionState(postIds) {
-  const state = new Map(postIds.map((id) => [id, { liked: false, reposted: false }]));
+  const state = new Map(postIds.map((id) => [id, { liked: false, reposted: false, saved: false }]));
   if (!postIds.length) return state;
-  const [{ data: likes, error: likeError }, { data: reposts, error: repostError }] = await Promise.all([
+  const [{ data: likes, error: likeError }, { data: reposts, error: repostError }, { data: saved, error: savedError }] = await Promise.all([
     supabase.from('likes').select('post_id').eq('user_id', currentUser.id).in('post_id', postIds),
     supabase.from('reposts').select('post_id').eq('user_id', currentUser.id).in('post_id', postIds),
+    supabase.from('saved_posts').select('post_id').eq('user_id', currentUser.id).in('post_id', postIds),
   ]);
   if (likeError) throw likeError;
   if (repostError) throw repostError;
+  if (savedError) throw savedError;
   likes.forEach(({ post_id: id }) => { state.get(id).liked = true; });
   reposts.forEach(({ post_id: id }) => { state.get(id).reposted = true; });
+  saved.forEach(({ post_id: id }) => { state.get(id).saved = true; });
   return state;
 }
 
@@ -386,15 +403,29 @@ function postCard(post, profile, reactions = {}, compact = false) {
           <span class="post-date">${escapeHtml(prettyDate(post.created_at))}</span>
           ${canDelete ? `<button class="post-edit" type="button" data-edit-post="${post.id}" aria-label="Editar publicación">✎</button><button class="post-delete" type="button" data-delete-post="${post.id}" aria-label="Eliminar publicación">×</button>` : ''}
         </header>
-        ${post.content ? `<p class="post-content">${escapeHtml(post.content).replaceAll('\n', '<br>')}</p>` : ''}
+        ${post.content ? (() => { const text = String(post.content); const long = text.length > 240; return `<div class="post-text-wrap"><p class="post-content${long && !compact ? '' : ' expanded'}">${escapeHtml(text).replaceAll('\n', '<br>')}</p>${long && !compact ? `<button class="post-more-button" type="button" data-expand-post-text aria-expanded="false">Ver más</button>` : ''}</div>`; })() : ''}
         ${media}
         <footer class="post-actions">
           <button class="post-action liked${reactions.liked ? ' active' : ''}" type="button" data-action="like" data-post-id="${post.id}">♥ <span>${compactNumber(post.like_count)}</span></button>
           <button class="post-action" type="button" data-action="comments" data-post-id="${post.id}">◌ <span>${compactNumber(post.comment_count)}</span></button>
           <button class="post-action reposted${reactions.reposted ? ' active' : ''}" type="button" data-action="repost" data-post-id="${post.id}">↻ <span>${compactNumber(post.repost_count)}</span></button>
+          <button class="post-action saved${reactions.saved ? ' active' : ''}" type="button" data-action="save" data-post-id="${post.id}" aria-label="${reactions.saved ? 'Quitar de guardados' : 'Guardar publicación'}">🔖</button>
+          <button class="post-action" type="button" data-action="share" data-post-id="${post.id}" aria-label="Compartir publicación">↗</button>
         </footer>
       </div>
     </article>`;
+}
+
+function profilePostGridItem(post) {
+  const mediaUrl = post.media_url || post.image_url;
+  const type = post.media_type || (post.image_url ? 'image' : null);
+  const isVideo = type === 'video';
+  const media = mediaUrl
+    ? (isVideo
+      ? `<video src="${escapeHtml(mediaUrl)}" muted playsinline preload="metadata"></video><span class="profile-grid-video">▷</span>`
+      : `<img src="${escapeHtml(mediaUrl)}" alt="Publicación de SR" loading="lazy" />`)
+    : `<div class="profile-grid-text">${escapeHtml(String(post.content || '').slice(0, 120))}</div>`;
+  return `<button class="profile-grid-item" type="button" data-open-post="${post.id}" aria-label="Abrir publicación">${media}<span class="profile-grid-overlay"><span>♥ ${compactNumber(post.like_count)}</span><span>◌ ${compactNumber(post.comment_count)}</span></span></button>`;
 }
 
 function emptyPosts(message = 'Aún no hay publicaciones.') {
@@ -406,6 +437,7 @@ async function fetchPosts(authorId = null, { offset = 0, limit = authorId ? 50 :
     .from('posts')
     .select('id, author_id, content, image_url, media_url, media_type, media_provider, like_count, comment_count, repost_count, created_at');
   if (authorId) query = query.eq('author_id', authorId);
+  else query = query.or('media_type.is.null,media_type.eq.image');
   const { data, error } = await query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
   if (error) throw error;
   const [profiles, reactions] = await Promise.all([
@@ -427,9 +459,10 @@ function setupFeedInfiniteScroll() {
   feedObserver.observe(feedSentinel);
 }
 
+// Inicio: los videos pertenecen exclusivamente a Reels/Shorts.
 async function loadFeed({ append = false } = {}) {
   if (feedLoading || (append && feedExhausted)) return;
-  const pageSize = 12;
+  const pageSize = 8;
   if (!append) {
     feedOffset = 0;
     feedExhausted = false;
@@ -504,7 +537,7 @@ function setupReelInfiniteScroll() {
 
 async function loadReels({ append = false } = {}) {
   if (!reelsList || reelsLoading || (append && reelsExhausted)) return;
-  const pageSize = 8;
+  const pageSize = 5;
   if (!append) {
     reelsOffset = 0;
     reelsExhausted = false;
@@ -517,7 +550,7 @@ async function loadReels({ append = false } = {}) {
     const { data, error } = await supabase
       .from('posts')
       .select('id, author_id, content, media_url, media_type, media_provider, like_count, comment_count, repost_count, created_at')
-      .eq('media_type', 'video')
+      .or('media_type.eq.video,media_type.like.video%')
       .order('created_at', { ascending: false })
       .range(reelsOffset, reelsOffset + pageSize - 1);
     if (error) throw error;
@@ -572,8 +605,8 @@ async function loadExplore(rawQuery = $('#explore-query')?.value || '') {
   results.innerHTML = '';
   try {
     const [searchResponse, trendsResponse] = await Promise.all([
-      supabase.rpc('sr_search_posts', { search_text: query, result_limit: 60 }),
-      query ? supabase.rpc('sr_search_posts', { search_text: '', result_limit: 100 }) : Promise.resolve(null),
+      supabase.rpc('sr_search_posts', { search_text: query, result_limit: 40 }),
+      query ? supabase.rpc('sr_search_posts', { search_text: '', result_limit: 60 }) : Promise.resolve(null),
     ]);
     if (searchResponse.error) throw searchResponse.error;
     if (trendsResponse?.error) throw trendsResponse.error;
@@ -766,10 +799,93 @@ async function openHighlight(highlightId) {
   } catch (error) { showToast(error.message || 'No pudimos abrir la destacada.', 'error'); }
 }
 
+async function loadSavedPosts({ append = false } = {}) {
+  if (savedLoading || (append && savedExhausted)) return;
+  savedLoading = true;
+  const list = $('#saved-posts-list');
+  const status = $('#saved-status');
+  const limit = 12;
+  const offset = append ? savedOffset : 0;
+  if (!append) { savedOffset = 0; savedExhausted = false; list.innerHTML = ''; status.textContent = 'Cargando guardados…'; }
+  try {
+    const { data: rows, error } = await supabase.from('saved_posts').select('post_id, created_at').eq('user_id', currentUser.id).order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+    if (error) throw error;
+    const ids = rows.map((row) => row.post_id);
+    if (!ids.length && !append) { list.innerHTML = emptyPosts('Todavía no tienes publicaciones guardadas.'); status.textContent = ''; return; }
+    if (ids.length < limit) savedExhausted = true;
+    savedOffset = offset + ids.length;
+    if (ids.length) {
+      const { data: posts, error: postError } = await supabase.from('posts').select('id, author_id, content, image_url, media_url, media_type, media_provider, like_count, comment_count, repost_count, created_at').in('id', ids);
+      if (postError) throw postError;
+      const order = new Map(ids.map((id, index) => [id, index]));
+      posts.sort((a,b) => order.get(a.id) - order.get(b.id));
+      const [profiles, reactions] = await Promise.all([profilesForIds(posts.map(p => p.author_id)), reactionState(posts.map(p => p.id))]);
+      const markup = posts.map(post => postCard(post, profiles.get(post.author_id), reactions.get(post.id))).join('');
+      list.insertAdjacentHTML('beforeend', markup);
+    }
+    status.textContent = savedOffset ? `${savedOffset} publicación${savedOffset === 1 ? '' : 'es'} guardada${savedOffset === 1 ? '' : 's'}` : '';
+    $('#load-more-saved').hidden = savedExhausted;
+  } catch (error) {
+    console.error(error);
+    list.innerHTML = emptyPosts('No pudimos cargar tus guardados.');
+    showToast(error.message || 'No pudimos cargar tus guardados.', 'error');
+  } finally { savedLoading = false; }
+}
+
+async function sharePost(postId) {
+  const url = `${location.origin}${location.pathname}#post-${postId}`;
+  try {
+    if (navigator.share) await navigator.share({ title: 'SR — Sin Restricciones', text: 'Mira esta publicación en SR', url });
+    else if (navigator.clipboard?.writeText) { await navigator.clipboard.writeText(url); showToast('Enlace copiado.'); }
+    else { window.prompt('Copia este enlace:', url); }
+  } catch (error) {
+    if (error?.name !== 'AbortError') showToast('No pudimos compartir la publicación.', 'error');
+  }
+}
+
+async function toggleSaved(postId) {
+  const button = document.querySelector(`[data-action="save"][data-post-id="${postId}"]`);
+  try {
+    const { data: existing, error: readError } = await supabase.from('saved_posts').select('post_id').eq('user_id', currentUser.id).eq('post_id', postId).maybeSingle();
+    if (readError) throw readError;
+    if (existing) {
+      const { error } = await supabase.from('saved_posts').delete().eq('user_id', currentUser.id).eq('post_id', postId);
+      if (error) throw error;
+      button?.classList.remove('active'); button?.setAttribute('aria-label', 'Guardar publicación'); showToast('Quitaste la publicación de Guardados.');
+    } else {
+      const { error } = await supabase.from('saved_posts').insert({ user_id: currentUser.id, post_id: postId });
+      if (error) throw error;
+      button?.classList.add('active'); button?.setAttribute('aria-label', 'Quitar de guardados'); showToast('Publicación guardada.');
+    }
+    if (activeView === 'saved') await loadSavedPosts();
+  } catch (error) { showToast(error.message || 'No pudimos actualizar Guardados.', 'error'); }
+}
+
+async function loadRelationshipList(type, profileId = currentUser.id) {
+  const dialog = $('#relationships-dialog');
+  const list = $('#relationships-list');
+  const title = $('#relationships-title');
+  title.textContent = type === 'followers' ? 'Seguidores' : 'Siguiendo';
+  list.innerHTML = '<p class="notification-empty">Cargando…</p>';
+  dialog.showModal();
+  try {
+    const column = type === 'followers' ? 'follower_id' : 'following_id';
+    const { data: rows, error } = await supabase.from('follows').select('follower_id, following_id, created_at').eq(type === 'followers' ? 'following_id' : 'follower_id', profileId).order('created_at', { ascending: false }).limit(100);
+    if (error) throw error;
+    const ids = rows.map(r => type === 'followers' ? r.follower_id : r.following_id);
+    if (!ids.length) { list.innerHTML = '<p class="notification-empty">Todavía no hay personas aquí.</p>'; return; }
+    const profiles = await profilesForIds(ids);
+    const states = await relationshipStates(ids);
+    list.innerHTML = ids.map(id => { const profile = profiles.get(id) || {}; const following = states.following.has(id); const pending = states.pending.has(id); return `<article class="relationship-row" data-relationship-profile="${id}">${avatarMarkup(profile)}<button class="relationship-main" type="button"><b>${escapeHtml(profile.display_name || 'Miembro de SR')}${badgeMarkup(profile)}</b><small>${escapeHtml(usernameFor(profile))}</small></button><button class="relationship-follow" type="button" data-relationship-follow="${id}" data-following="${following}" data-pending="${pending}">${following ? 'Siguiendo' : pending ? 'Solicitado' : 'Seguir'}</button></article>`; }).join('');
+  } catch (error) { list.innerHTML = '<p class="notification-empty">No pudimos cargar esta lista.</p>'; showToast(error.message || 'No pudimos cargar seguidores.', 'error'); }
+}
+
 function setActiveView(view) {
   activeView = view;
   $$('.view-section').forEach((section) => { section.hidden = section.id !== `${view}-view`; });
   $$('[data-view]').forEach((button) => button.classList.toggle('active', button.dataset.view === view));
+  if (view === 'saved') { loadSavedPosts().catch((error) => showToast(error.message || 'No pudimos cargar Guardados.', 'error')); }
+  if (view !== 'explore') { const panel = $('#explore-search-panel'); if (panel) panel.hidden = true; $('#explore-search-toggle')?.setAttribute('aria-expanded', 'false'); }
 }
 
 async function loadSettings() {
@@ -790,6 +906,8 @@ async function loadSettings() {
     $('#comments-from').value = currentProfile?.comments_from || 'everyone';
     const selected = document.querySelector(`input[name="profile-theme"][value="${currentProfile?.profile_theme || 'nebula'}"]`);
     if (selected) selected.checked = true;
+    const interfaceTheme = document.querySelector(`input[name="interface-theme"][value="${document.body.dataset.theme || 'light'}"]`);
+    if (interfaceTheme) interfaceTheme.checked = true;
     if (!selectedBackgroundImage && !clearBackgroundImage) renderBackgroundPreview(currentProfile?.background_url || null);
   } catch (error) {
     console.warn('Ajustes pendientes de activar.', error);
@@ -840,6 +958,20 @@ async function loadFollowRequests() {
   }).join('')}`;
 }
 
+function toggleMobileProfileMenu(force, anchor = null) {
+  const menu = $('#mobile-profile-menu');
+  if (!menu) return;
+  const shouldOpen = typeof force === 'boolean' ? force : menu.hidden;
+  menu.hidden = !shouldOpen;
+  menu.setAttribute('aria-hidden', String(!shouldOpen));
+  if (anchor && shouldOpen) {
+    const rect = anchor.getBoundingClientRect();
+    menu.style.top = `${Math.min(window.innerHeight - 120, rect.bottom + 8)}px`;
+    menu.style.right = `${Math.max(10, window.innerWidth - rect.right)}px`;
+  }
+  $('#profile-menu-button')?.setAttribute('aria-expanded', String(shouldOpen));
+}
+
 async function showProfile(id = currentUser.id) {
   viewedProfileId = id;
   setActiveView('profile');
@@ -868,15 +1000,15 @@ async function showProfile(id = currentUser.id) {
         <p class="bio">${escapeHtml(profile.bio || 'Esta persona aún no agregó una bio.')}</p>
         <div class="profile-stats">
           <button class="profile-stat" type="button"><b>${compactNumber(profile.post_count)}</b> publicaciones</button>
-          <button class="profile-stat" type="button"><b>${compactNumber(profile.following_count)}</b> siguiendo</button>
-          <button class="profile-stat" type="button"><b>${canSeeFollowerCount ? compactNumber(effectiveFollowers(profile)) : '—'}</b>${canSeeFollowerCount ? 'seguidores' : 'seguidores privados'}</button>
+          <button class="profile-stat" type="button" data-relationship-list="following"><b>${compactNumber(profile.following_count)}</b> siguiendo</button>
+          <button class="profile-stat" type="button" data-relationship-list="followers"><b>${canSeeFollowerCount ? compactNumber(effectiveFollowers(profile)) : '—'}</b>${canSeeFollowerCount ? 'seguidores' : 'seguidores privados'}</button>
         </div>
         <div class="profile-actions">
-          ${ownProfile ? '<button id="profile-edit-page" class="button button-secondary" type="button">Editar perfil</button><button id="profile-settings-button" class="button button-secondary" type="button">⚙ Ajustes</button><section id="pending-follow-requests" class="follow-requests"></section>' : `<button id="follow-button" class="button ${follows || pending ? 'button-secondary' : 'button-primary'}" type="button" data-following="${follows}" data-pending="${pending}">${followLabel}</button><button id="profile-message-button" class="button button-secondary" type="button">Mensaje</button>`}
+          ${ownProfile ? '<button id="profile-edit-page" class="button button-secondary" type="button">Editar perfil</button><button id="profile-menu-button" class="profile-menu-button" type="button" aria-label="Más opciones" aria-expanded="false">•••</button><section id="pending-follow-requests" class="follow-requests"></section>' : `<button id="follow-button" class="button ${follows || pending ? 'button-secondary' : 'button-primary'}" type="button" data-following="${follows}" data-pending="${pending}">${followLabel}</button><button id="profile-message-button" class="button button-secondary" type="button">Mensaje</button>`}
         </div>
       </section>
       <section id="profile-highlights" class="profile-highlights" aria-label="Historias destacadas"></section>
-      <h2 class="profile-posts-title">Publicaciones</h2>`;
+      <div class="profile-create-shortcut">${ownProfile ? '<button id="profile-create-post" class="profile-create-button" type="button"><span>＋</span> Crear publicación</button>' : ''}</div>`;
 
     await loadHighlights(id);
     if (ownProfile) await loadFollowRequests();
@@ -886,12 +1018,16 @@ async function showProfile(id = currentUser.id) {
     } else {
       const { posts, profiles, reactions } = await fetchPosts(id);
       $('#profile-posts-list').innerHTML = posts.length
-        ? posts.map((post) => postCard(post, profiles.get(post.author_id), reactions.get(post.id))).join('')
+        ? `<div class="profile-grid">${posts.map((post) => profilePostGridItem(post)).join('')}</div>`
         : emptyPosts('Todavía no ha publicado.');
     }
 
+    $('#profile-create-post')?.addEventListener('click', () => { setActiveView('create'); postContent.focus(); window.scrollTo({ top: 0, behavior: 'smooth' }); });
     $('#profile-edit-page')?.addEventListener('click', openProfileDialog);
-    $('#profile-settings-button')?.addEventListener('click', async () => { setActiveView('settings'); await loadSettings(); });
+    $('#profile-menu-button')?.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleMobileProfileMenu(true, event.currentTarget);
+    });
     $('#follow-button')?.addEventListener('click', () => toggleFollow(profile, follows, pending));
     $('#profile-message-button')?.addEventListener('click', async () => { await openChat(profile); });
   } catch (error) {
@@ -975,7 +1111,9 @@ async function searchUsers(rawQuery) {
 async function toggleSearchFollow(profile, follows, pending = false) {
   const message = await updateRelationship(profile, follows, pending);
   await Promise.all([loadCurrentProfile(), loadContacts(), loadStories()]);
-  await searchUsers($('#user-search-input').value);
+  const legacySearch = $('#user-search-input');
+  if (legacySearch) await searchUsers(legacySearch.value);
+  if (typeof exploreUserSearchInput !== 'undefined' && exploreUserSearchInput) await searchUsersInExplore(exploreUserSearchInput.value);
   showToast(message);
 }
 
@@ -1208,7 +1346,7 @@ async function deleteMessage(messageId) {
 }
 
 function notificationIcon(type) {
-  return ({ follow: '＋', like: '♥', comment: '◌', repost: '↻', message: '✉' })[type] || '•';
+  return ({ follow: '＋', like: '♥', comment: '💬', repost: '↻', message: '✉', reply: '↩', save: '🔖' })[type] || '•';
 }
 
 function notificationText(notification, profile) {
@@ -1258,7 +1396,7 @@ async function openPostDialog(postId) {
     const [profiles, reactions, commentsResponse, permissionResponse] = await Promise.all([
       profilesForIds([post.author_id]),
       reactionState([post.id]),
-      supabase.from('comments').select('id, post_id, author_id, content, created_at').eq('post_id', post.id).order('created_at', { ascending: true }),
+      supabase.from('comments').select('id, post_id, author_id, parent_id, content, created_at').eq('post_id', post.id).order('created_at', { ascending: true }),
       supabase.rpc('sr_can_comment_post', { post_to_check: post.id }),
     ]);
     if (commentsResponse.error) throw commentsResponse.error;
@@ -1266,10 +1404,14 @@ async function openPostDialog(postId) {
     const commentProfiles = await profilesForIds(commentsResponse.data.map((comment) => comment.author_id));
     $('#focused-post').innerHTML = postCard(post, profiles.get(post.author_id), reactions.get(post.id), true);
     $('#comments-total').textContent = compactNumber(commentsResponse.data.length);
-    $('#comments-list').innerHTML = commentsResponse.data.length ? commentsResponse.data.map((comment) => {
+    const byParent = new Map();
+    commentsResponse.data.forEach((comment) => { const key = comment.parent_id || null; if (!byParent.has(key)) byParent.set(key, []); byParent.get(key).push(comment); });
+    const renderCommentTree = (parentId = null, depth = 0) => (byParent.get(parentId) || []).map((comment) => {
       const author = commentProfiles.get(comment.author_id) || {};
-      return `<article class="comment"><header><b>${escapeHtml(author.display_name || 'Miembro de SR')}</b><span>${escapeHtml(prettyDate(comment.created_at))}</span></header><p>${escapeHtml(comment.content).replaceAll('\n', '<br>')}</p></article>`;
-    }).join('') : '<p class="notification-empty">Sé la primera persona en comentar.</p>';
+      const replies = renderCommentTree(comment.id, depth + 1);
+      return `<article class="comment ${depth ? 'comment-reply' : ''}" style="--comment-depth:${Math.min(depth,3)}"><header><span class="comment-author"><b>${escapeHtml(author.display_name || 'Miembro de SR')}</b></span><span>${escapeHtml(prettyDate(comment.created_at))}</span></header><p>${escapeHtml(comment.content).replaceAll('\n', '<br>')}</p><button class="comment-reply-button" type="button" data-reply-comment="${comment.id}">Responder</button>${replies}</article>`;
+    }).join('');
+    $('#comments-list').innerHTML = commentsResponse.data.length ? renderCommentTree() : '<p class="notification-empty">Sé la primera persona en comentar.</p>';
     $('#comment-form').hidden = !permissionResponse.data;
     if (!permissionResponse.data) $('#comments-list').insertAdjacentHTML('beforeend', '<p class="notification-empty">Esta persona restringió los comentarios.</p>');
   } catch (error) {
@@ -1309,6 +1451,10 @@ async function openEditPost(postId) {
 }
 
 async function handlePostAction(event) {
+  const openPostButton = event.target.closest('[data-open-post]');
+  if (openPostButton) { await openPostDialog(openPostButton.dataset.openPost); return; }
+  const moreButton = event.target.closest('[data-expand-post-text]');
+  if (moreButton) { const wrap = moreButton.closest('.post-text-wrap'); const text = wrap?.querySelector('.post-content'); if (text) { const expanded = text.classList.toggle('expanded'); moreButton.textContent = expanded ? 'Ver menos' : 'Ver más'; moreButton.setAttribute('aria-expanded', expanded ? 'true' : 'false'); } return; }
   const profileButton = event.target.closest('[data-open-profile]');
   if (profileButton) { await showProfile(profileButton.dataset.openProfile); return; }
   const deleteButton = event.target.closest('[data-delete-post]');
@@ -1326,6 +1472,7 @@ async function handlePostAction(event) {
   if (!action) return;
   try {
     if (action.dataset.action === 'comments') await openPostDialog(action.dataset.postId);
+    else if (action.dataset.action === 'share') await sharePost(action.dataset.postId);
     else await toggleReaction(Number(action.dataset.postId), action.dataset.action);
   } catch (error) {
     console.error(error);
@@ -1357,6 +1504,92 @@ function optimizedCloudinaryVideoUrl(url) {
   return url.includes(marker) ? url.replace(marker, '/video/upload/f_auto,q_auto:eco,w_1280,c_limit/') : url;
 }
 
+async function compressVideoInBrowser(file) {
+  if (!file?.type?.startsWith('video/')) return file;
+  // Best-effort compression. If MediaRecorder/canvas capture is unavailable,
+  // the normal server-side optimizer or Storage fallback will handle the file.
+  if (!('MediaRecorder' in window) || !HTMLVideoElement.prototype.play || !HTMLCanvasElement.prototype.captureStream) return file;
+  // Small videos do not need another expensive encode pass.
+  if (file.size <= 8 * 1024 * 1024) return file;
+  try {
+    const sourceUrl = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.muted = false;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    video.src = sourceUrl;
+    await new Promise((resolve, reject) => {
+      video.onloadedmetadata = resolve;
+      video.onerror = () => reject(new Error('No se pudo leer el video para optimizarlo.'));
+    });
+    const duration = Number(video.duration || 0);
+    if (!Number.isFinite(duration) || duration <= 0 || duration > 180) {
+      URL.revokeObjectURL(sourceUrl);
+      return file;
+    }
+    const maxWidth = 1280;
+    const maxHeight = 720;
+    const scale = Math.min(1, maxWidth / video.videoWidth, maxHeight / video.videoHeight);
+    const width = Math.max(2, Math.round(video.videoWidth * scale / 2) * 2);
+    const height = Math.max(2, Math.round(video.videoHeight * scale / 2) * 2);
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d', { alpha: false });
+    const canvasStream = canvas.captureStream(30);
+    const sourceStream = video.captureStream?.() || video.mozCaptureStream?.();
+    // If the browser cannot expose the source audio/video stream, keep the original
+    // so we never risk uploading a silent or broken compressed copy.
+    if (!sourceStream) {
+      URL.revokeObjectURL(sourceUrl);
+      return file;
+    }
+    if (sourceStream) {
+      sourceStream.getAudioTracks().forEach((track) => canvasStream.addTrack(track));
+    }
+    const mimeCandidates = [
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
+      'video/webm'
+    ];
+    const mimeType = mimeCandidates.find((type) => MediaRecorder.isTypeSupported(type));
+    if (!mimeType) {
+      URL.revokeObjectURL(sourceUrl);
+      return file;
+    }
+    const recorder = new MediaRecorder(canvasStream, { mimeType, videoBitsPerSecond: 1_600_000, audioBitsPerSecond: 96_000 });
+    const chunks = [];
+    recorder.ondataavailable = (event) => { if (event.data?.size) chunks.push(event.data); };
+    const stopped = new Promise((resolve, reject) => {
+      recorder.onstop = resolve;
+      recorder.onerror = () => reject(new Error('No se pudo comprimir el video.'));
+    });
+    const drawFrame = () => {
+      if (video.ended || video.paused) return;
+      ctx.drawImage(video, 0, 0, width, height);
+      requestAnimationFrame(drawFrame);
+    };
+    recorder.start(1000);
+    video.currentTime = 0;
+    await video.play();
+    drawFrame();
+    await new Promise((resolve) => { video.onended = resolve; });
+    if (recorder.state !== 'inactive') recorder.stop();
+    await stopped;
+    canvasStream.getTracks().forEach((track) => track.stop());
+    sourceStream?.getTracks().forEach((track) => track.stop());
+    URL.revokeObjectURL(sourceUrl);
+    const blob = new Blob(chunks, { type: mimeType });
+    // Never replace the original with a larger file.
+    if (!blob.size || blob.size >= file.size * 0.95) return file;
+    const base = file.name.replace(/\.[^.]+$/, '');
+    return new File([blob], `${base}.webm`, { type: mimeType });
+  } catch (error) {
+    console.info('Compresión de video en navegador omitida; se usará el optimizador disponible.', error);
+    return file;
+  }
+}
+
 async function uploadServerOptimizedVideo(file) {
   const { data: signature, error: signatureError } = await supabase.functions.invoke('sign-video-upload', { body: { filename: file.name } });
   if (signatureError || !signature?.upload_url) throw signatureError || new Error('El procesador de video no está configurado.');
@@ -1380,6 +1613,11 @@ async function uploadMedia(file, kind = 'post') {
   if (kind === 'avatar' && !isImage) throw new Error('La foto de perfil debe ser una imagen.');
   if (kind === 'post' && isAudio) throw new Error('Las publicaciones aceptan fotos o videos. El audio se envía por mensajes.');
   if ((isVideo && file.size > 40 * 1024 * 1024) || (isAudio && file.size > 20 * 1024 * 1024)) throw new Error('El archivo supera el límite permitido.');
+  if (isVideo) {
+    const originalSize = file.size;
+    file = await compressVideoInBrowser(file);
+    if (file.size < originalSize) showToast(`Video optimizado: ${Math.round((1 - file.size / originalSize) * 100)}% menos espacio.`);
+  }
   if (isVideo && kind !== 'story') {
     try {
       return await uploadServerOptimizedVideo(file);
@@ -1409,17 +1647,25 @@ async function refreshActiveContent() {
   else if (activeView === 'settings') await loadSettings();
   else if (activeView === 'explore') await loadExplore();
   else if (activeView === 'reels') await loadReels();
+  else if (activeView === 'saved') await loadSavedPosts();
   else await loadFeed();
   await loadCurrentProfile();
   await loadNotifications();
   await loadStories();
 }
 
-function scheduleLiveRefresh() {
-  window.clearTimeout(refreshTimer);
-  refreshTimer = window.setTimeout(async () => {
-    try { await refreshActiveContent(); } catch (error) { console.warn('Actualización en tiempo real no disponible todavía.', error); }
-  }, 450);
+function scheduleLiveRefresh(kind = 'content') {
+  // Las actualizaciones de publicaciones/perfiles ya no reconstruyen la vista automáticamente.
+  // Esto evita saltos al principio y permite que el usuario decida cuándo actualizar con ↻.
+  if (kind === 'messages') {
+    window.clearTimeout(refreshTimer);
+    refreshTimer = window.setTimeout(async () => {
+      try {
+        await loadContacts();
+        if (activeView === 'messages' && selectedChat) await loadMessages();
+      } catch (error) { console.warn('Actualización de mensajes no disponible todavía.', error); }
+    }, 350);
+  }
 }
 
 async function handleRealtimeMessage(payload) {
@@ -1435,20 +1681,21 @@ async function handleRealtimeMessage(payload) {
 function startRealtime() {
   if (realtimeChannel) supabase.removeChannel(realtimeChannel);
   realtimeChannel = supabase.channel(`sr-live-${currentUser.id}`)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, scheduleLiveRefresh)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, scheduleLiveRefresh)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, scheduleLiveRefresh)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'reposts' }, scheduleLiveRefresh)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'follows' }, scheduleLiveRefresh)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, scheduleLiveRefresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => scheduleLiveRefresh('content'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'likes' }, () => scheduleLiveRefresh('content'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => scheduleLiveRefresh('content'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'reposts' }, () => scheduleLiveRefresh('content'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'saved_posts' }, () => {})
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'follows' }, () => scheduleLiveRefresh('profile'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, () => scheduleLiveRefresh('notifications'))
     .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
       handleRealtimeMessage(payload).catch((error) => console.warn('No pudimos actualizar el mensaje.', error));
     })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, scheduleLiveRefresh)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'follow_requests' }, scheduleLiveRefresh)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'stories' }, scheduleLiveRefresh)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'story_reactions' }, scheduleLiveRefresh)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'story_comments' }, scheduleLiveRefresh)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'message_reactions' }, () => scheduleLiveRefresh('messages'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'follow_requests' }, () => scheduleLiveRefresh('profile'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'stories' }, () => scheduleLiveRefresh('stories'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'story_reactions' }, () => scheduleLiveRefresh('stories'))
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'story_comments' }, () => scheduleLiveRefresh('stories'))
     .subscribe();
 }
 
@@ -1506,39 +1753,67 @@ async function markNotificationRead(notificationId) {
   await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('id', notificationId);
 }
 
-// Tema y autenticación.
-setTheme(localStorage.getItem('sr-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
-$('#theme-toggle').addEventListener('click', () => setTheme(document.body.dataset.theme === 'dark' ? 'light' : 'dark'));
+// Tema y autenticación. El tema de interfaz solo se cambia desde Ajustes.
+setTheme(localStorage.getItem('sr-theme') || 'dark');
 $$('[data-auth-mode]').forEach((tab) => tab.addEventListener('click', () => setAuthMode(tab.dataset.authMode)));
 
-$('#user-search-input').addEventListener('input', (event) => {
-  window.clearTimeout(searchTimer);
+const exploreUserSearchInput = $('#explore-user-search-input');
+const exploreUserSearchResults = $('#explore-user-search-results');
+let exploreSearchTimer = null;
+
+function renderExploreUserResults(profiles, states) {
+  if (!exploreUserSearchResults) return;
+  if (!profiles.length) {
+    exploreUserSearchResults.innerHTML = '<p class="search-empty">No encontramos personas con ese nombre.</p>';
+    exploreUserSearchResults.hidden = false;
+    return;
+  }
+  exploreUserSearchResults.innerHTML = profiles.map((profile) => {
+    const follows = states.following.has(profile.id);
+    const pending = states.pending.has(profile.id);
+    const followers = profile.show_follower_count === false ? 'seguidores privados' : `${compactNumber(effectiveFollowers(profile))} seguidores`;
+    const label = follows ? 'Siguiendo' : pending ? 'Solicitado' : profile.is_private ? 'Solicitar' : 'Seguir';
+    return `<article class="search-result" data-explore-search-profile="${profile.id}">${avatarMarkup(profile)}<div><b>${escapeHtml(profile.display_name || 'Miembro de SR')}${badgeMarkup(profile)}${profile.is_private ? ' ⌑' : ''}</b><small>${escapeHtml(usernameFor(profile))} · ${followers}</small></div><div class="search-result-actions"><button type="button" data-explore-search-follow="${profile.id}" data-following="${follows}" data-pending="${pending}">${label}</button><button type="button" data-explore-search-message="${profile.id}">Mensaje</button></div></article>`;
+  }).join('');
+  exploreUserSearchResults.hidden = false;
+}
+
+async function searchUsersInExplore(rawQuery) {
+  const query = rawQuery.trim().replace(/[,.()%]/g, '').slice(0, 60);
+  if (!query || query.length < 2 || !currentUser) { if (exploreUserSearchResults) exploreUserSearchResults.hidden = true; return; }
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(PROFILE_FIELDS)
+    .or(`display_name.ilike.%${query}%,username.ilike.%${query}%`)
+    .neq('id', currentUser.id)
+    .limit(10);
+  if (error) throw error;
+  const states = await relationshipStates(data.map((profile) => profile.id));
+  renderExploreUserResults(data, states);
+}
+
+exploreUserSearchInput?.addEventListener('input', (event) => {
+  window.clearTimeout(exploreSearchTimer);
   const query = event.target.value;
-  if (query.trim().length < 2) { hideUserSearch(); return; }
-  searchTimer = window.setTimeout(async () => {
-    try { await searchUsers(query); }
-    catch (error) { console.warn('La búsqueda no está disponible.', error); showToast(error.message || 'No pudimos buscar personas.', 'error'); }
-  }, 260);
+  exploreSearchTimer = window.setTimeout(() => searchUsersInExplore(query).catch((error) => showToast(error.message || 'No pudimos buscar usuarios.', 'error')), 220);
 });
-$('#user-search-input').addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') { event.currentTarget.value = ''; hideUserSearch(); event.currentTarget.blur(); }
+exploreUserSearchInput?.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') { event.currentTarget.value = ''; if (exploreUserSearchResults) exploreUserSearchResults.hidden = true; }
 });
-$('#user-search-results').addEventListener('click', async (event) => {
-  const row = event.target.closest('[data-search-profile]');
+exploreUserSearchResults?.addEventListener('click', async (event) => {
+  const row = event.target.closest('[data-explore-search-profile]');
   if (!row) return;
-  const profile = searchResults.find((item) => item.id === row.dataset.searchProfile);
-  if (!profile) return;
+  const id = row.dataset.exploreSearchProfile;
   try {
-    const follow = event.target.closest('[data-search-follow]');
-    const message = event.target.closest('[data-search-message]');
-    if (follow) { await toggleSearchFollow(profile, follow.dataset.following === 'true', follow.dataset.pending === 'true'); return; }
-    if (message) { hideUserSearch(); $('#user-search-input').value = ''; await openChat(profile); return; }
-    hideUserSearch();
-    $('#user-search-input').value = '';
-    await showProfile(profile.id);
-  } catch (error) { showToast(error.message || 'No pudimos completar esa acción.', 'error'); }
+    const profile = await getProfile(id);
+    if (!profile) return;
+    const follow = event.target.closest('[data-explore-search-follow]');
+    const message = event.target.closest('[data-explore-search-message]');
+    if (follow) { await toggleSearchFollow(profile, follow.dataset.following === 'true', follow.dataset.pending === 'true'); await searchUsersInExplore(exploreUserSearchInput.value); return; }
+    if (message) { exploreUserSearchInput.value = ''; exploreUserSearchResults.hidden = true; await openChat(profile); return; }
+    exploreUserSearchInput.value = ''; exploreUserSearchResults.hidden = true; await showProfile(profile.id);
+  } catch (error) { showToast(error.message || 'No pudimos abrir este usuario.', 'error'); }
 });
-document.addEventListener('click', (event) => { if (!event.target.closest('.user-search')) hideUserSearch(); });
 
 authForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -1571,14 +1846,73 @@ $$('[data-view]').forEach((button) => button.addEventListener('click', async () 
   if (view === 'profile') await showProfile(currentUser.id);
   else if (view === 'messages') { setActiveView('messages'); setMessagesChatOpen(Boolean(selectedChat)); await loadContacts(); if (selectedChat) await loadMessages(); }
   else if (view === 'settings') { setActiveView('settings'); await loadSettings(); }
+  else if (view === 'saved') { setActiveView('saved'); await loadSavedPosts(); }
+  else if (view === 'create') { setActiveView('create'); postContent.focus(); }
   else if (view === 'explore') { setActiveView('explore'); await loadExplore(); }
   else if (view === 'reels') { setActiveView('reels'); await loadReels(); }
   else { setActiveView('feed'); await loadFeed(); }
 }));
-$('#refresh-button').addEventListener('click', async () => { await refreshActiveContent(); showToast('SR está actualizado.'); });
+$('#create-post-back')?.addEventListener('click', async () => { setActiveView('feed'); await loadFeed(); });
+$('#reels-back')?.addEventListener('click', async () => { setActiveView('feed'); await loadFeed(); });
+
+const exploreSearchToggle = $('#explore-search-toggle');
+const exploreSearchPanel = $('#explore-search-panel');
+const closeExploreSearch = () => {
+  if (!exploreSearchPanel) return;
+  exploreSearchPanel.hidden = true;
+  exploreSearchToggle?.setAttribute('aria-expanded', 'false');
+};
+exploreSearchToggle?.addEventListener('click', () => {
+  if (!exploreSearchPanel) return;
+  exploreSearchPanel.hidden = !exploreSearchPanel.hidden;
+  exploreSearchToggle.setAttribute('aria-expanded', String(!exploreSearchPanel.hidden));
+  if (!exploreSearchPanel.hidden) exploreUserSearchInput?.focus();
+});
+$('#explore-search-close')?.addEventListener('click', closeExploreSearch);
+async function manualRefresh() {
+  const scrollY = window.scrollY;
+  const activeScroller = document.querySelector('.messages-list, .reels-list');
+  const scrollerTop = activeScroller?.scrollTop ?? 0;
+  try {
+    await refreshActiveContent();
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+      if (activeScroller) activeScroller.scrollTop = scrollerTop;
+    });
+    showToast('SR está actualizado.');
+  } catch (error) {
+    showToast(error.message || 'No pudimos actualizar SR.', 'error');
+  }
+}
+$('#refresh-button')?.addEventListener('click', manualRefresh);
+$('#load-more-saved')?.addEventListener('click', () => loadSavedPosts({ append: true }));
+$('#floating-refresh')?.addEventListener('click', manualRefresh);
+$('#sidebar-settings-button')?.addEventListener('click', async () => { setActiveView('settings'); await loadSettings(); });
+$('#mobile-menu-saved')?.addEventListener('click', async () => { toggleMobileProfileMenu(false); setActiveView('saved'); await loadSavedPosts(); });
+$('#mobile-menu-settings')?.addEventListener('click', async () => { toggleMobileProfileMenu(false); setActiveView('settings'); await loadSettings(); });
+$('#mobile-menu-sign-out')?.addEventListener('click', async () => { toggleMobileProfileMenu(false); const { error } = await supabase.auth.signOut(); if (error) showToast(error.message, 'error'); });
+document.addEventListener('click', (event) => {
+  const menu = $('#mobile-profile-menu');
+  if (menu && !menu.hidden && !event.target.closest('#mobile-profile-menu, #profile-menu-button')) toggleMobileProfileMenu(false);
+});
+$('#relationships-list')?.addEventListener('click', async (event) => {
+  const row = event.target.closest('[data-relationship-profile]');
+  const follow = event.target.closest('[data-relationship-follow]');
+  if (!row) return;
+  try {
+    const id = row.dataset.relationshipProfile;
+    if (follow) { const profile = await getProfile(id); await toggleSearchFollow(profile, follow.dataset.following === 'true', follow.dataset.pending === 'true'); await loadRelationshipList($('#relationships-title').textContent === 'Seguidores' ? 'followers' : 'following', viewedProfileId || currentUser.id); return; }
+    $('#relationships-dialog').close(); await showProfile(id);
+  } catch (error) { showToast(error.message || 'No pudimos actualizar la relación.', 'error'); }
+});
+
+window.addEventListener('resize', () => toggleMobileProfileMenu(false));
+$$('input[name="interface-theme"]').forEach((input) => input.addEventListener('change', () => setTheme(input.value)));
 ['#sidebar-edit-profile', '#top-edit-profile'].forEach((selector) => $(selector).addEventListener('click', openProfileDialog));
 $$('.close-dialog').forEach((button) => button.addEventListener('click', () => profileDialog.close()));
 $('#profile-page-content').addEventListener('click', async (event) => {
+  const relationship = event.target.closest('[data-relationship-list]');
+  if (relationship) { await loadRelationshipList(relationship.dataset.relationshipList, viewedProfileId || currentUser.id); return; }
   const accept = event.target.closest('[data-accept-follow-request]');
   const reject = event.target.closest('[data-reject-follow-request]');
   if (!accept && !reject) return;
@@ -1611,6 +1945,7 @@ $('#profile-form').addEventListener('submit', async (event) => {
     let uploadedAvatar;
     if (selectedProfileAvatar) uploadedAvatar = await uploadMedia(selectedProfileAvatar, 'avatar');
     const { error } = await supabase.from('profiles').update({ display_name: displayName, username: username || null, bio: bio || null, avatar_url: uploadedAvatar?.url || currentProfile?.avatar_url || null }).eq('id', currentUser.id);
+    profileCache.delete(currentUser.id);
     if (error) throw error;
     await loadCurrentProfile();
     profileDialog.close();
@@ -1636,6 +1971,7 @@ $('#profile-avatar-input').addEventListener('change', (event) => {
 $('#settings-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const profileTheme = document.querySelector('input[name="profile-theme"]:checked')?.value || 'nebula';
+  const interfaceTheme = document.querySelector('input[name="interface-theme"]:checked')?.value || document.body.dataset.theme || 'dark';
   const settings = {
     email_notifications: $('#email-notifications').checked,
     push_notifications: $('#push-notifications').checked,
@@ -1651,6 +1987,7 @@ $('#settings-form').addEventListener('submit', async (event) => {
   setBusy(button, true, 'Guardando…');
   let uploadedBackground;
   try {
+    setTheme(interfaceTheme);
     if (selectedBackgroundImage) uploadedBackground = await uploadMedia(selectedBackgroundImage, 'background');
     const backgroundUrl = uploadedBackground?.url ?? (clearBackgroundImage ? null : currentProfile?.background_url || null);
     const [{ error: profileError }, { error: settingsError }] = await Promise.all([
@@ -1660,6 +1997,7 @@ $('#settings-form').addEventListener('submit', async (event) => {
     if (profileError) throw profileError;
     if (settingsError) throw settingsError;
     currentSettings = settings;
+    profileCache.delete(currentUser.id);
     selectedBackgroundImage = null;
     clearBackgroundImage = false;
     await loadCurrentProfile();
@@ -1701,6 +2039,7 @@ postForm.addEventListener('submit', async (event) => {
     if (error) throw error;
     postForm.reset(); selectedPostMedia = null; $('#character-count').textContent = '0 / 1000'; selectedFilePreview(null, $('#post-media-preview'), () => {});
     await loadFeed(); await loadCurrentProfile();
+    setActiveView('feed');
     showToast('Tu publicación ya está en SR.');
   } catch (error) {
     console.error(error);
@@ -1731,14 +2070,30 @@ $('#trending-tags').addEventListener('click', async (event) => {
   $('#explore-query').value = tag.dataset.exploreTag;
   await loadExplore(tag.dataset.exploreTag);
 });
+$('#comments-list').addEventListener('click', (event) => {
+  const button = event.target.closest('[data-reply-comment]');
+  if (!button) return;
+  replyingToCommentId = button.dataset.replyComment;
+  const comment = button.closest('.comment');
+  const author = comment?.querySelector('.comment-author b')?.textContent || 'este comentario';
+  const input = $('#comment-content');
+  input.placeholder = `Responder a ${author}`;
+  if (!$('#comment-reply-context')) input.insertAdjacentHTML('beforebegin', `<div id="comment-reply-context" class="comment-reply-context">Respondiendo a <b>${escapeHtml(author)}</b><button type="button" id="cancel-comment-reply" aria-label="Cancelar respuesta">×</button></div>`);
+  input.focus();
+});
+$('.comments-section')?.addEventListener('click', (event) => { if (event.target.id === 'cancel-comment-reply') { replyingToCommentId = null; $('#comment-content').placeholder = 'Escribe un comentario'; $('#comment-reply-context')?.remove(); } });
+
 $('#comment-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const content = $('#comment-content').value.trim();
   if (!content || !focusedPostId) return;
   try {
-    const { error } = await supabase.from('comments').insert({ post_id: focusedPostId, author_id: currentUser.id, content });
+    const { error } = await supabase.from('comments').insert({ post_id: focusedPostId, author_id: currentUser.id, parent_id: replyingToCommentId || null, content });
     if (error) throw error;
     $('#comment-content').value = '';
+    replyingToCommentId = null;
+    $('#comment-content').placeholder = 'Escribe un comentario';
+    $('#comment-reply-context')?.remove();
     await openPostDialog(focusedPostId);
     await refreshActiveContent();
   } catch (error) { showToast(error.message || 'No pudimos publicar el comentario.', 'error'); }
