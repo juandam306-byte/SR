@@ -298,20 +298,17 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
 .contacts-heading { display: flex; align-items: center; justify-content: space-between; padding: 16px 14px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; }
 .contacts-heading button { border: 0; color: var(--violet); background: transparent; font-size: 16px; }
 .contacts-list { display: grid; gap: 2px; padding: 8px; }
-.contact { position: relative; display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; border: 0; border-radius: 10px; color: var(--ink-soft); background: transparent; text-align: left; }
+.contact { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 9px; align-items: center; width: 100%; padding: 9px 8px; border: 0; border-radius: 10px; color: var(--ink-soft); background: transparent; text-align: left; }
 .contact:hover, .contact.active { background: var(--lavender); color: var(--ink); }
 .contact .avatar { width: 31px; height: 31px; border-radius: 10px 10px 10px 3px; font-size: 10px; }
-.contact-name { display: block; overflow: hidden; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-.contact-handle { display: block; overflow: hidden; margin-top: 2px; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
-.contact-unread { position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border: 2px solid var(--paper-solid); border-radius: 50%; background: var(--violet); box-shadow: 0 0 0 2px color-mix(in srgb, var(--violet) 16%, transparent); }
+.contact-copy { display: grid; min-width: 0; gap: 3px; }.contact-line { display: flex; min-width: 0; gap: 6px; align-items: center; justify-content: space-between; }.contact-name { display: block; overflow: hidden; color: var(--ink); font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }.contact-line time { flex: 0 0 auto; color: var(--muted); font-size: 9px; }.contact-preview { display: block; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }.contact-unread { display: grid; min-width: 17px; height: 17px; place-items: center; padding: 0 4px; border: 2px solid var(--paper-solid); border-radius: 99px; color: #fff; background: var(--violet); box-shadow: 0 0 0 2px color-mix(in srgb, var(--violet) 16%, transparent); font-size: 8px; font-style: normal; font-weight: 800; }
 .conversation-panel { display: flex; min-width: 0; flex-direction: column; }
 .conversation-empty { display: grid; flex: 1; place-content: center; gap: 6px; padding: 25px; color: var(--muted); text-align: center; }
 .conversation-empty strong { color: var(--ink); font: 700 20px "Outfit", sans-serif; }
-.conversation-header { display: flex; align-items: center; gap: 10px; min-height: 64px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.conversation-header { display: flex; align-items: center; gap: 10px; min-height: 64px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--paper); }
 .conversation-header .avatar { width: 35px; height: 35px; }
-.conversation-header strong { display: block; font-size: 13px; }
-.conversation-header span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
-.messages-list { display: flex; flex: 1; flex-direction: column; gap: 9px; max-height: 385px; min-height: 385px; padding: 16px; overflow: auto; }
+.chat-back { display: none; width: 30px; height: 30px; place-items: center; padding: 0; border: 0; border-radius: 9px; color: var(--ink); background: transparent; font-size: 29px; line-height: 1; }.chat-back:hover { background: var(--lavender); color: var(--violet); }.chat-profile-button { display: grid; min-width: 0; flex: 1; padding: 0; border: 0; color: var(--ink); background: transparent; text-align: left; }.chat-profile-button:hover strong { color: var(--violet); }.conversation-header strong { display: block; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }.conversation-header span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+.messages-list { display: flex; flex: 1; flex-direction: column; gap: 9px; max-height: 385px; min-height: 385px; padding: 16px; overflow: auto; background-color: color-mix(in srgb, var(--subtle) 44%, transparent); background-image: radial-gradient(color-mix(in srgb, var(--muted) 18%, transparent) 1px, transparent 1px); background-size: 14px 14px; }
 .message-bubble { align-self: flex-start; max-width: 80%; padding: 9px 11px; border-radius: 12px 12px 12px 3px; color: var(--ink-soft); background: var(--subtle); font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
 .message-bubble.mine { align-self: flex-end; border-radius: 12px 12px 3px 12px; color: #fff; background: var(--violet); }
 .message-bubble time { display: block; margin-top: 4px; color: color-mix(in srgb, currentColor 55%, transparent); font-size: 9px; }
@@ -381,9 +378,9 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
   .post-card { padding: 14px; }
   .reels-list { max-height: calc(100vh - 220px); }.reel-card { min-height: min(640px, calc(100vh - 255px)); border-radius: 18px; }.reel-top { padding: 13px; }.reel-bottom { right: 12px; bottom: 13px; left: 13px; }.reel-copy p { font-size: 13px; }
   .messages-panel { grid-template-columns: 1fr; min-height: 0; }
-  .contacts-panel { border-right: 0; border-bottom: 1px solid var(--line); }.contacts-heading { padding: 10px 13px; }.contacts-list { display: flex; gap: 6px; min-height: 76px; padding: 8px 10px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }.contacts-list::-webkit-scrollbar { display: none; }
-  .contact { display: grid; flex: 0 0 68px; gap: 3px; justify-items: center; padding: 4px 2px; text-align: center; }.contact .avatar { width: 36px; height: 36px; }.contact > div { display: block; width: 100%; }.contact-handle { display: none; }.contact-name { overflow: hidden; font-size: 9px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }.contact-unread { top: 3px; right: 7px; }
-  .messages-list { min-height: min(46vh, 350px); max-height: min(46vh, 350px); padding: 12px; }
+  .contacts-panel { border-right: 0; border-bottom: 1px solid var(--line); }.contacts-heading { padding: 12px 13px; }.contacts-list { display: grid; max-height: calc(100vh - 220px); padding: 8px; overflow-y: auto; }.contact { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; padding: 10px 8px; justify-items: stretch; text-align: left; }.contact .avatar { width: 38px; height: 38px; }.contact-copy { display: grid; }.contact-name { font-size: 12px; }.contact-preview { font-size: 10px; }.contact-unread { position: static; align-self: center; }
+  #messages-view:not(.chat-open) .conversation-panel { display: none; }#messages-view:not(.chat-open) .contacts-panel { min-height: calc(100vh - 190px); }#messages-view.chat-open .contacts-panel { display: none; }#messages-view.chat-open .conversation-panel { min-height: calc(100vh - 170px); }.chat-back { display: grid; }
+  .messages-list { min-height: min(56vh, 500px); max-height: min(56vh, 500px); padding: 12px; }
   .profile-hero { padding: 19px; }
   .profile-identity h1 { font-size: 24px; }
   .theme-choices { grid-template-columns: repeat(3, minmax(0,1fr)); }
@@ -405,7 +402,7 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
   .video-link-field input { font-size: 11px; }
   .reels-intro { align-items: flex-start; }.reels-intro p { font-size: 10px; }.reels-list { min-height: 280px; max-height: calc(100vh - 215px); }.reel-card { min-height: min(570px, calc(100vh - 245px)); }.reel-actions { gap: 5px; }.reel-action { min-width: 38px; min-height: 37px; font-size: 15px; }
   .mobile-nav:not([hidden]) { right: 8px; bottom: calc(8px + env(safe-area-inset-bottom)); left: 8px; padding: 5px; border-radius: 16px; }.mobile-nav button { min-height: 49px; }.mobile-nav button span { font-size: 18px; }
-  .contacts-list { min-height: 72px; padding-inline: 8px; }.contact { flex-basis: 62px; }.contact .avatar { width: 34px; height: 34px; }.contact-name { font-size: 8px; }
+  .contacts-list { max-height: calc(100vh - 185px); padding-inline: 6px; }.contact { grid-template-columns: 38px minmax(0, 1fr) auto; padding: 9px 6px; }.contact .avatar { width: 36px; height: 36px; }.contact-name { font-size: 11px; }.messages-list { min-height: min(54vh, 460px); max-height: min(54vh, 460px); }
   .comment-form .button { padding: 8px 10px; font-size: 11px; }
   .theme-choices { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }

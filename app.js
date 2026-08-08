@@ -53,6 +53,8 @@ let appLoadId = 0;
 let contacts = [];
 let contactUnreadIds = new Set();
 let contactActivity = new Map();
+let contactPreviews = new Map();
+let contactUnreadCounts = new Map();
 let contactsLoading = false;
 let contactsReloadQueued = false;
 let storyGroups = new Map();
@@ -99,6 +101,16 @@ function effectiveFollowers(profile) {
 
 function compactNumber(value = 0) {
   return new Intl.NumberFormat('es-CO', { notation: 'compact', maximumFractionDigits: 1 }).format(Number(value || 0));
+}
+
+function chatTime(value) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const age = Date.now() - date.getTime();
+  if (age < 86400000) return new Intl.DateTimeFormat('es-CO', { hour: '2-digit', minute: '2-digit' }).format(date);
+  if (age < 604800000) return new Intl.DateTimeFormat('es-CO', { weekday: 'short' }).format(date).replace('.', '');
+  return new Intl.DateTimeFormat('es-CO', { day: '2-digit', month: '2-digit' }).format(date);
 }
 
 function prettyDate(value) {
@@ -969,11 +981,12 @@ async function toggleSearchFollow(profile, follows, pending = false) {
 
 function renderContacts() {
   const list = $('#contacts-list');
-  if (!contacts.length) { list.innerHTML = '<p class="notification-empty">Aún no hay otras personas.</p>'; return; }
+  if (!contacts.length) { list.innerHTML = '<p class="notification-empty">Aún no hay conversaciones. Busca una persona para comenzar.</p>'; return; }
   list.innerHTML = contacts.map((profile) => {
     const active = selectedChat?.id === profile.id;
-    const unread = contactUnreadIds.has(profile.id);
-    return `<button class="contact${active ? ' active' : ''}" type="button" data-contact-id="${profile.id}">${avatarMarkup(profile)}<div><span class="contact-name">${escapeHtml(profile.display_name || 'Miembro de SR')}</span><span class="contact-handle">${escapeHtml(usernameFor(profile))}</span></div>${unread ? '<i class="contact-unread" aria-label="Mensaje sin leer"></i>' : ''}</button>`;
+    const unreadCount = contactUnreadCounts.get(profile.id) || 0;
+    const preview = contactPreviews.get(profile.id) || usernameFor(profile);
+    return `<button class="contact${active ? ' active' : ''}" type="button" data-contact-id="${profile.id}">${avatarMarkup(profile)}<span class="contact-copy"><span class="contact-line"><b class="contact-name">${escapeHtml(profile.display_name || 'Miembro de SR')}${badgeMarkup(profile)}</b><time>${escapeHtml(chatTime(contactActivity.get(profile.id)))}</time></span><span class="contact-preview">${escapeHtml(preview)}</span></span>${unreadCount ? `<i class="contact-unread" aria-label="${unreadCount} mensajes sin leer">${unreadCount > 9 ? '9+' : unreadCount}</i>` : ''}</button>`;
   }).join('');
 }
 
@@ -986,7 +999,7 @@ async function loadContacts() {
     // quien acaba de escribir nunca queda oculto detrás de sugerencias.
     const { data: activityRows, error: activityError } = await supabase
       .from('messages')
-      .select('sender_id, receiver_id, seen_at, created_at')
+      .select('sender_id, receiver_id, content, media_type, seen_at, created_at')
       .or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
       .order('created_at', { ascending: false })
       .limit(160);
@@ -996,12 +1009,21 @@ async function loadContacts() {
     const seenIds = new Set();
     contactActivity = new Map();
     contactUnreadIds = new Set();
+    contactPreviews = new Map();
+    contactUnreadCounts = new Map();
     (activityRows || []).forEach((message) => {
       const contactId = message.sender_id === currentUser.id ? message.receiver_id : message.sender_id;
       if (!contactId || contactId === currentUser.id) return;
       if (!seenIds.has(contactId)) { seenIds.add(contactId); conversationIds.push(contactId); }
-      if (!contactActivity.has(contactId)) contactActivity.set(contactId, message.created_at);
-      if (message.receiver_id === currentUser.id && !message.seen_at) contactUnreadIds.add(contactId);
+      if (!contactActivity.has(contactId)) {
+        contactActivity.set(contactId, message.created_at);
+        const mediaPreview = message.media_type === 'video' ? '🎬 Video' : message.media_type === 'audio' ? '🎵 Audio' : message.media_type === 'image' ? '▧ Foto' : 'Mensaje';
+        contactPreviews.set(contactId, message.content?.trim() || mediaPreview);
+      }
+      if (message.receiver_id === currentUser.id && !message.seen_at) {
+        contactUnreadIds.add(contactId);
+        contactUnreadCounts.set(contactId, (contactUnreadCounts.get(contactId) || 0) + 1);
+      }
     });
 
     const conversationProfiles = conversationIds.length
@@ -1076,13 +1098,32 @@ async function loadMessages({ scrollToLatest = false } = {}) {
   await loadContacts();
 }
 
+function setMessagesChatOpen(open) {
+  $('#messages-view')?.classList.toggle('chat-open', open);
+}
+
+function closeChatToContacts() {
+  if (chatRealtimeChannel) { supabase.removeChannel(chatRealtimeChannel); chatRealtimeChannel = null; }
+  window.clearTimeout(typingTimer);
+  selectedChat = null;
+  currentMessages = [];
+  clearReply();
+  $('#conversation-content').hidden = true;
+  $('#conversation-empty').hidden = false;
+  setMessagesChatOpen(false);
+  renderContacts();
+}
+
 async function openChat(profile) {
   selectedChat = profile;
   setActiveView('messages');
+  setMessagesChatOpen(true);
   renderContacts();
   $('#conversation-empty').hidden = true;
   $('#conversation-content').hidden = false;
-  $('#conversation-header').innerHTML = `${avatarMarkup(profile)}<div><strong>${escapeHtml(profile.display_name || 'Miembro de SR')}${badgeMarkup(profile)}</strong><span>${escapeHtml(usernameFor(profile))}</span></div>`;
+  $('#conversation-header').innerHTML = `<button id="back-to-contacts" class="chat-back" type="button" aria-label="Volver a chats">‹</button>${avatarMarkup(profile)}<button id="chat-profile-button" class="chat-profile-button" type="button"><strong>${escapeHtml(profile.display_name || 'Miembro de SR')}${badgeMarkup(profile)}</strong><span>${escapeHtml(usernameFor(profile))}</span></button>`;
+  $('#back-to-contacts').addEventListener('click', closeChatToContacts);
+  $('#chat-profile-button').addEventListener('click', async () => { await showProfile(profile.id); });
   startChatPresence();
   await loadMessages({ scrollToLatest: true });
 }
@@ -1439,6 +1480,7 @@ function showAuth() {
   currentProfile = null;
   selectedChat = null;
   currentMessages = [];
+  setMessagesChatOpen(false);
   clearReply();
   appView.hidden = true;
   $('#mobile-nav').hidden = true;
@@ -1527,7 +1569,7 @@ authForm.addEventListener('submit', async (event) => {
 $$('[data-view]').forEach((button) => button.addEventListener('click', async () => {
   const view = button.dataset.view;
   if (view === 'profile') await showProfile(currentUser.id);
-  else if (view === 'messages') { setActiveView('messages'); await loadContacts(); if (selectedChat) await loadMessages(); }
+  else if (view === 'messages') { setActiveView('messages'); setMessagesChatOpen(Boolean(selectedChat)); await loadContacts(); if (selectedChat) await loadMessages(); }
   else if (view === 'settings') { setActiveView('settings'); await loadSettings(); }
   else if (view === 'explore') { setActiveView('explore'); await loadExplore(); }
   else if (view === 'reels') { setActiveView('reels'); await loadReels(); }
