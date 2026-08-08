@@ -72,16 +72,16 @@
             <button class="nav-link active" type="button" data-view="feed"><span>⌂</span> Inicio</button>
             <button class="nav-link" type="button" data-view="explore"><span>⌕</span> Explorar</button>
             <button class="nav-link" type="button" data-view="reels"><span>▷</span> Reels</button>
-            <button class="nav-link" type="button" data-view="profile"><span>◎</span> Perfil</button>
             <button class="nav-link" type="button" data-view="messages"><span>✉</span> Mensajes <i id="messages-nav-dot" hidden></i></button>
           </nav>
           <button id="refresh-button" class="refresh-button" type="button">↻ Actualizar</button>
-          <section class="mini-profile">
-            <div class="avatar avatar-large" id="sidebar-avatar">SR</div>
-            <div><p id="mini-profile-name" class="mini-profile-name">Tu perfil</p><p id="sidebar-username" class="mini-profile-handle">@usuario</p></div>
-            <button class="text-button" id="sidebar-edit-profile" type="button">Editar</button>
+          <section class="sidebar-account">
+            <button id="sidebar-profile-button" class="mini-profile" type="button" data-view="profile" aria-label="Abrir mi perfil">
+              <span class="avatar avatar-large" id="sidebar-avatar">SR</span>
+              <span><b id="mini-profile-name" class="mini-profile-name">Tu perfil</b><small id="sidebar-username" class="mini-profile-handle">@usuario</small></span><i>›</i>
+            </button>
+            <div class="sidebar-account-actions"><button class="text-button" id="sidebar-edit-profile" type="button">Editar perfil</button><button id="sign-out-button" class="sign-out" type="button">Cerrar sesión</button></div>
           </section>
-          <button id="sign-out-button" class="sign-out" type="button">Cerrar sesión</button>
         </aside>
 
         <section id="feed-view" class="main-column view-section">

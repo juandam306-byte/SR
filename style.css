@@ -92,7 +92,7 @@ main { width: min(1220px, calc(100% - 48px)); margin: 0 auto; }
 
 /* Aplicación */
 .app-layout { display: grid; grid-template-columns: 205px minmax(0, 1fr) 263px; gap: 30px; align-items: start; padding: 21px 0 62px; }
-.left-rail, .right-rail { position: sticky; top: 18px; }
+.left-rail { position: sticky; top: 18px; display: flex; flex-direction: column; height: calc(100vh - 118px); }.right-rail { position: sticky; top: 18px; }
 .primary-nav { display: grid; gap: 5px; margin-bottom: 14px; }
 .nav-link { display: flex; align-items: center; gap: 11px; width: 100%; padding: 11px 12px; border: 0; border-radius: 11px; color: var(--muted); background: transparent; font-size: 14px; font-weight: 700; text-align: left; }
 .nav-link span { width: 19px; font-size: 18px; text-align: center; }
@@ -100,12 +100,9 @@ main { width: min(1220px, calc(100% - 48px)); margin: 0 auto; }
 .nav-link i { width: 6px; height: 6px; margin-left: auto; border-radius: 50%; background: var(--danger); }
 .refresh-button { width: 100%; padding: 9px 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--muted); background: var(--paper); font-size: 12px; font-weight: 700; text-align: left; }
 .refresh-button:hover { color: var(--violet); border-color: #cbc4ff; }
-.mini-profile { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; padding: 18px 0 14px; margin-top: 18px; border-top: 1px solid var(--line); }
-.mini-profile-name { margin: 0; overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
-.mini-profile-handle { margin: 3px 0 0; overflow: hidden; color: var(--muted); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.sidebar-account { margin-top: auto; padding-top: 15px; border-top: 1px solid var(--line); }.mini-profile { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; align-items: center; width: 100%; padding: 8px; border: 0; border-radius: 13px; color: var(--ink); background: transparent; text-align: left; }.mini-profile:hover, .mini-profile.active { background: var(--lavender); }.mini-profile.active { color: var(--violet); }.mini-profile-name { display: block; overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }.mini-profile-handle { display: block; margin-top: 3px; overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }.mini-profile > i { color: var(--muted); font-size: 22px; font-style: normal; }
 .text-button { padding: 0; border: 0; color: var(--violet); background: transparent; font-size: 11px; font-weight: 700; }
-.mini-profile .text-button { grid-column: 2; justify-self: start; }
-.sign-out { margin: 3px 0 0 12px; padding: 0; border: 0; color: var(--muted); background: transparent; font-size: 12px; }
+.sidebar-account-actions { display: flex; gap: 12px; padding: 9px 8px 0 58px; }.sign-out { padding: 0; border: 0; color: var(--muted); background: transparent; font-size: 11px; }
 .sign-out:hover { color: var(--danger); }
 .main-column { min-width: 0; }
 .view-heading { display: flex; align-items: end; justify-content: space-between; min-height: 54px; margin: 0 2px 17px; }
