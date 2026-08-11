@@ -180,19 +180,6 @@ function youtubeEmbedSource(url, loop = false) {
   return `https://www.youtube-nocookie.com/embed/${id}?${params.toString()}`;
 }
 
-const ICONS = {
-  heart: '<svg class="ui-icon icon-heart" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.9c0 5.1-8.8 10.1-8.8 10.1S3.2 14 3.2 8.9A5.1 5.1 0 0 1 8.3 3.8c1.4 0 2.8.6 3.7 1.7.9-1.1 2.3-1.7 3.7-1.7a5.1 5.1 0 0 1 5.1 5.1Z"/></svg>',
-  comment: '<svg class="ui-icon icon-comment" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11.5a8.1 8.1 0 0 1-8.2 8.1 8.8 8.8 0 0 1-4.1-1l-4 1 1-3.8a8 8 0 1 1 15.3-4.3Z"/></svg>',
-  repost: '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 3-3 3 3"/><path d="M10 4v8a4 4 0 0 0 4 4h3"/><path d="m17 13 3 3-3 3"/><path d="M20 16h-4a4 4 0 0 1-4-4V8"/></svg>',
-  volume: '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M17 9.5a4 4 0 0 1 0 5"/><path d="M19.5 7a7 7 0 0 1 0 10"/></svg>',
-  send: '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 4 16 8-16 8 3-8-3-8Z"/><path d="M7 12h9"/></svg>',
-  search: '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2"/><path d="m16 16 4 4"/></svg>',
-  bell: '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M10 21h4"/></svg>',
-  settings: '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 1.1 1.9 2.2.6 1.9-1 1.5 1.5-1 1.9.6 2.2L21 12l-1.9 1.1-.6 2.2 1 1.9-1.5 1.5-1.9-1-2.2.6L12 21l-1.1-1.9-2.2-.6-1.9 1-1.5-1.5 1-1.9-.6-2.2L3 12l1.9-1.1.6-2.2-1-1.9L7 5.3l1.9 1 2.2-.6L12 3Z"/><circle cx="12" cy="12" r="2.5"/></svg>',
-  logout: '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h5"/><path d="M13 8l4 4-4 4"/><path d="M17 12H8"/></svg>'
-};
-function iconMarkup(name) { return ICONS[name] || ''; }
-
 function mediaMarkup(url, type, className = 'post-media', provider = null, options = {}) {
   const safeUrl = safeHttpsUrl(url);
   if (!safeUrl) return '';
@@ -211,7 +198,7 @@ function mediaMarkup(url, type, className = 'post-media', provider = null, optio
 
 function avatarMarkup(profile, className = 'avatar') {
   const name = profile?.display_name || 'SR';
-  const image = profile?.avatar_url ? `<img src="${escapeHtml(profile.avatar_url)}" alt="Foto de ${escapeHtml(name)}" loading="lazy" decoding="async" />` : escapeHtml(initials(name));
+  const image = profile?.avatar_url ? `<img src="${escapeHtml(profile.avatar_url)}" alt="Foto de ${escapeHtml(name)}" />` : escapeHtml(initials(name));
   return `<div class="${className}">${image}</div>`;
 }
 
@@ -229,7 +216,7 @@ function setAvatarElement(selector, profile) {
   const element = $(selector);
   if (!element) return;
   const name = profile?.display_name || 'SR';
-  element.innerHTML = profile?.avatar_url ? `<img src="${escapeHtml(profile.avatar_url)}" alt="Foto de ${escapeHtml(name)}" loading="lazy" decoding="async" />` : escapeHtml(initials(name));
+  element.innerHTML = profile?.avatar_url ? `<img src="${escapeHtml(profile.avatar_url)}" alt="Foto de ${escapeHtml(name)}" />` : escapeHtml(initials(name));
 }
 
 function showToast(message, type = 'success') {
@@ -408,8 +395,8 @@ function postCard(post, profile, reactions = {}, compact = false) {
       })() : ''}
       ${media}
       <footer class="post-actions">
-        <button class="post-action liked${reactions.liked ? ' active' : ''}" type="button" data-action="like" data-post-id="${post.id}" aria-label="Me gusta">${iconMarkup('heart')}<span>${compactNumber(post.like_count)}</span></button>
-        <button class="post-action" type="button" data-action="comments" data-post-id="${post.id}" aria-label="Comentar">${iconMarkup('comment')}<span>${compactNumber(post.comment_count)}</span></button>
+        <button class="post-action liked${reactions.liked ? ' active' : ''}" type="button" data-action="like" data-post-id="${post.id}" aria-label="Me gusta">♡ <span>${compactNumber(post.like_count)}</span></button>
+        <button class="post-action" type="button" data-action="comments" data-post-id="${post.id}" aria-label="Comentar">◯ <span>${compactNumber(post.comment_count)}</span></button>
       </footer>
     </article>`;
 }
@@ -477,12 +464,12 @@ function reelCard(post, profile, reactions = {}) {
   const name = author.display_name || 'Miembro de SR';
   const media = mediaMarkup(post.media_url, 'video', 'reel-video', post.media_provider, { autoplay: true, loop: true, controls: false });
   if (!media) return '';
-  const sound = post.media_provider === 'youtube' ? '' : '<button class="reel-action" type="button" data-reel-sound aria-label="Activar o silenciar sonido">${iconMarkup('volume')}</button>';
+  const sound = post.media_provider === 'youtube' ? '' : '<button class="reel-action" type="button" data-reel-sound aria-label="Activar o silenciar sonido">♬</button>';
   return `<article class="reel-card" data-post-id="${post.id}">
     <div class="reel-media">${media}</div><div class="reel-overlay"></div>
     <div class="reel-top"><button class="reel-author" type="button" data-open-profile="${post.author_id}">${avatarMarkup(author, 'avatar reel-avatar')}<span><b>${escapeHtml(name)}${badgeMarkup(author)}</b><small>${escapeHtml(usernameFor(author))}</small></span></button>${post.author_id === currentUser.id ? `<button class="reel-edit" type="button" data-edit-post="${post.id}" aria-label="Editar Reel">✎</button><button class="reel-delete" type="button" data-delete-post="${post.id}" aria-label="Eliminar Reel">×</button>` : ''}</div>
     <div class="reel-bottom"><div class="reel-copy">${post.content ? `<p>${escapeHtml(post.content).replaceAll('\n', '<br>')}</p>` : '<p>Video compartido en SR</p>'}<small>${escapeHtml(prettyDate(post.created_at))}</small></div>
-      <div class="reel-actions"><button class="reel-action liked${reactions.liked ? ' active' : ''}" type="button" data-action="like" data-post-id="${post.id}" aria-label="Me gusta">${iconMarkup('heart')}<span>${compactNumber(post.like_count)}</span></button><button class="reel-action" type="button" data-action="comments" data-post-id="${post.id}" aria-label="Comentar">${iconMarkup('comment')}<span>${compactNumber(post.comment_count)}</span></button><button class="reel-action reposted${reactions.reposted ? ' active' : ''}" type="button" data-action="repost" data-post-id="${post.id}" aria-label="Repostear">${iconMarkup('repost')}<span>${compactNumber(post.repost_count)}</span></button>${sound}</div>
+      <div class="reel-actions"><button class="reel-action liked${reactions.liked ? ' active' : ''}" type="button" data-action="like" data-post-id="${post.id}" aria-label="Me gusta">♥<span>${compactNumber(post.like_count)}</span></button><button class="reel-action" type="button" data-action="comments" data-post-id="${post.id}" aria-label="Comentar">◌<span>${compactNumber(post.comment_count)}</span></button><button class="reel-action reposted${reactions.reposted ? ' active' : ''}" type="button" data-action="repost" data-post-id="${post.id}" aria-label="Repostear">↻<span>${compactNumber(post.repost_count)}</span></button>${sound}</div>
     </div>
   </article>`;
 }
@@ -587,8 +574,10 @@ async function loadExplore(rawQuery = $('#explore-query')?.value || '') {
   status.textContent = 'Buscando en SR…';
   results.innerHTML = '';
   try {
-    const searchResponse = await supabase.rpc('sr_search_posts', { search_text: query, result_limit: 60 });
-    const trendsResponse = query ? null : await supabase.rpc('sr_search_posts', { search_text: '', result_limit: 100 });
+    const [searchResponse, trendsResponse] = await Promise.all([
+      supabase.rpc('sr_search_posts', { search_text: query, result_limit: 60 }),
+      query ? supabase.rpc('sr_search_posts', { search_text: '', result_limit: 100 }) : Promise.resolve(null),
+    ]);
     if (searchResponse.error) throw searchResponse.error;
     if (trendsResponse?.error) throw trendsResponse.error;
     const posts = searchResponse.data || [];
@@ -1342,13 +1331,7 @@ async function deleteMessage(messageId) {
 }
 
 function notificationIcon(type) {
-  return ({
-    follow: '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
-    like: iconMarkup('heart'),
-    comment: iconMarkup('comment'),
-    repost: iconMarkup('repost'),
-    message: '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H8l-4 4V5Z"/></svg>',
-  })[type] || '<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/></svg>';
+  return ({ follow: '＋', like: '♥', comment: '◌', repost: '↻', message: '✉' })[type] || '•';
 }
 
 function notificationText(notification, profile) {
