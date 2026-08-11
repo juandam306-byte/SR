@@ -18,7 +18,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
-body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--canvas); font-family: "DM Sans", system-ui, sans-serif; transition: color .2s, background .2s; }
+body { min-height: 100vh; margin: 0; color: var(--ink); background: var(--canvas); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; transition: color .2s, background .2s; }
 body[data-custom-background="true"] { background-image: linear-gradient(120deg, color-mix(in srgb, var(--canvas) 87%, transparent), color-mix(in srgb, var(--canvas) 72%, transparent)), var(--profile-background); background-attachment: fixed; background-position: center; background-size: cover; }
 button, input, textarea { font: inherit; }
 button { cursor: pointer; }
@@ -45,11 +45,11 @@ body[data-theme="dark"] .ambient-one { background: #392b72; opacity: .35; }
 body[data-theme="dark"] .ambient-two { background: #633044; opacity: .28; }
 
 .site-header { width: min(1220px, calc(100% - 48px)); height: 82px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
-.brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); font: 800 24px/1 "Outfit", sans-serif; text-decoration: none; letter-spacing: -1px; }
+.brand { display: inline-flex; align-items: center; gap: 11px; color: var(--ink); font: 800 24px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; text-decoration: none; letter-spacing: -1px; }
 .brand-mark { display: grid; width: 40px; height: 40px; place-items: center; overflow: hidden; border-radius: 13px 13px 13px 3px; background: linear-gradient(145deg, var(--violet), #9c50f3); box-shadow: 0 8px 20px rgba(109, 74, 255, .26); }
 .brand-mark img { display: block; width: 100%; height: 100%; }
 .brand-name { display: grid; gap: 1px; }
-.brand small { color: var(--muted); font: 600 9px/1 "DM Sans", sans-serif; letter-spacing: .8px; text-transform: uppercase; }
+.brand small { color: var(--muted); font: 600 9px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: .8px; text-transform: uppercase; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
 .install-button { min-height: 34px; padding: 7px 10px; border: 1px solid #d8d0ff; border-radius: 10px; color: var(--violet); background: var(--lavender); font-size: 11px; font-weight: 800; letter-spacing: .1px; }
 .install-button:hover { border-color: var(--violet); transform: translateY(-1px); }
@@ -64,7 +64,7 @@ main { width: min(1220px, calc(100% - 48px)); margin: 0 auto; }
 .auth-layout { min-height: calc(100vh - 82px); padding: 47px 0 74px; display: grid; grid-template-columns: 1.12fr .88fr; align-items: center; gap: clamp(60px, 10vw, 150px); }
 .hero-copy { max-width: 600px; }
 .eyebrow { margin: 0 0 10px; color: var(--violet); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; }
-.hero-copy h1, .view-heading h1, .auth-card h2, .dialog h2 { margin: 0; font-family: "Outfit", sans-serif; letter-spacing: -1.8px; }
+.hero-copy h1, .view-heading h1, .auth-card h2, .dialog h2 { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: -1.8px; }
 .hero-copy h1 { max-width: 520px; font-size: clamp(52px, 6.7vw, 82px); line-height: .98; }
 .hero-description { max-width: 500px; margin: 24px 0 30px; color: var(--muted); font-size: 18px; line-height: 1.62; }
 .hero-points { display: grid; gap: 12px; color: var(--ink-soft); font-weight: 600; }
@@ -111,7 +111,7 @@ main { width: min(1220px, calc(100% - 48px)); margin: 0 auto; }
 .live-pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 4px color-mix(in srgb, var(--green) 15%, transparent); }
 
 .composer { display: flex; gap: 13px; padding: 17px; border-radius: 18px; }
-.avatar { flex: 0 0 auto; display: grid; width: 37px; height: 37px; place-items: center; overflow: hidden; border-radius: 13px 13px 13px 4px; color: #fff; background: linear-gradient(145deg, #ff9a73, #ff6f7a); font-family: "Outfit", sans-serif; font-size: 12px; font-weight: 800; }
+.avatar { flex: 0 0 auto; display: grid; width: 37px; height: 37px; place-items: center; overflow: hidden; border-radius: 13px 13px 13px 4px; color: #fff; background: linear-gradient(145deg, #ff9a73, #ff6f7a); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 12px; font-weight: 800; }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .avatar-large { width: 40px; height: 40px; }
 .avatar-xl { width: 64px; height: 64px; border-radius: 21px 21px 21px 5px; font-size: 18px; }
@@ -132,8 +132,9 @@ main { width: min(1220px, calc(100% - 48px)); margin: 0 auto; }
 .feed-status { min-height: 32px; padding: 12px 5px 0; color: var(--muted); font-size: 12px; }
 .posts-list { display: grid; gap: 12px; }
 .explore-card { display: grid; gap: 19px; padding: 18px; margin-bottom: 6px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: 0 8px 22px rgba(47,37,88,.04); }.explore-search { display: flex; gap: 8px; }.explore-search input { min-width: 0; flex: 1; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; outline: 0; color: var(--ink); background: var(--paper-solid); }.explore-search input:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(109,74,255,.11); }.trending-tags { display: flex; flex-wrap: wrap; gap: 7px; }.trending-tag { padding: 7px 9px; border: 1px solid #d9d3ff; border-radius: 99px; color: var(--violet); background: var(--lavender); font-size: 11px; font-weight: 700; }.trending-tag span { margin-left: 4px; opacity: .7; }
-.post-card { display: grid; grid-template-columns: 38px 1fr; gap: 12px; padding: 17px; border-radius: 17px; box-shadow: 0 9px 26px rgba(47,37,88,.05); content-visibility: auto; contain-intrinsic-size: auto 190px; }
+.post-card { display: grid; grid-template-columns: 38px 1fr; gap: 12px; padding: 17px; border-radius: 17px; border: 1px solid var(--line); background: var(--paper-solid); box-shadow: 0 9px 26px rgba(47,37,88,.10); content-visibility: auto; contain-intrinsic-size: auto 190px; }
 .post-card.compact { padding: 14px; }
+.post-card .post-content { background: var(--paper-solid); }
 .post-header { display: flex; align-items: center; gap: 6px; min-width: 0; }
 .post-name { padding: 0; border: 0; overflow: hidden; color: var(--ink); background: transparent; font-size: 14px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .post-name:hover { color: var(--violet); text-decoration: underline; }
@@ -156,7 +157,7 @@ main { width: min(1220px, calc(100% - 48px)); margin: 0 auto; }
 .post-action.reposted.active { color: var(--green); }
 .empty-state { padding: 38px 25px; border: 1px dashed #dcd8e8; border-radius: 17px; color: var(--muted); background: color-mix(in srgb, var(--paper-solid) 55%, transparent); text-align: center; }
 body[data-theme="dark"] .empty-state { border-color: #3d3a4d; }
-.empty-state strong { display: block; margin-bottom: 6px; color: var(--ink); font-family: "Outfit", sans-serif; font-size: 18px; }
+.empty-state strong { display: block; margin-bottom: 6px; color: var(--ink); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 18px; }
 
 /* Reels */
 .reels-intro { display: flex; gap: 12px; align-items: center; padding: 14px 16px; margin-bottom: 2px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); box-shadow: 0 8px 22px rgba(47,37,88,.04); }
@@ -175,7 +176,7 @@ body[data-theme="dark"] .empty-state { border-color: #3d3a4d; }
 .icon-button { display: grid; width: 30px; height: 30px; place-items: center; padding: 0; border: 0; border-radius: 8px; color: var(--ink-soft); background: var(--subtle); font-size: 18px; }
 .icon-button:hover { color: var(--violet); background: var(--lavender); }
 .profile-card-main { padding-top: 17px; }
-.profile-card h2 { display: inline; margin: 12px 0 2px; font: 700 18px/1.15 "Outfit", sans-serif; overflow-wrap: anywhere; }
+.profile-card h2 { display: inline; margin: 12px 0 2px; font: 700 18px/1.15 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; overflow-wrap: anywhere; }
 .profile-card-main > p:not(.profile-bio) { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
 .profile-bio { min-height: 40px; margin: 13px 0 0; color: var(--ink-soft); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
 .mini-stats { display: flex; gap: 14px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; }
@@ -193,7 +194,7 @@ body[data-theme="dark"] .empty-state { border-color: #3d3a4d; }
 /* Perfil */
 .profile-hero { padding: 26px; border: 1px solid var(--line); border-radius: 19px; background: var(--paper); box-shadow: var(--shadow); }
 .profile-identity { display: flex; gap: 16px; align-items: center; }
-.profile-identity h1 { margin: 0; font: 700 29px/1.1 "Outfit", sans-serif; letter-spacing: -1px; }
+.profile-identity h1 { margin: 0; font: 700 29px/1.1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: -1px; }
 .verified { display: inline-grid; width: 18px; height: 18px; place-items: center; margin-left: 5px; border-radius: 50%; color: #fff; background: #4f9eff; font-size: 11px; vertical-align: 2px; }
 .verified.gold { color: #6e4d00; background: linear-gradient(135deg, #ffdd68, #eaaa29); }
 .profile-identity .handle { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
@@ -203,7 +204,7 @@ body[data-theme="dark"] .empty-state { border-color: #3d3a4d; }
 .profile-stat b { display: block; color: var(--ink); font-size: 15px; }
 .profile-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 21px; }.profile-actions .follow-requests { flex-basis: 100%; }
 .private-profile-badge { display: inline-flex; margin-left: 7px; padding: 4px 7px; border-radius: 99px; color: var(--violet); background: var(--lavender); font-size: 10px; font-weight: 700; vertical-align: 3px; }.follow-requests { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }.follow-requests > b { display: block; margin-bottom: 9px; font-size: 12px; }.follow-request { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--line); }.follow-request .avatar { width: 31px; height: 31px; font-size: 10px; }.follow-request > span { flex: 1; min-width: 0; overflow: hidden; font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }.follow-request button { padding: 6px 8px; border: 0; border-radius: 7px; color: var(--violet); background: var(--lavender); font-size: 10px; font-weight: 700; }.follow-request button[data-reject-follow-request] { color: var(--danger); background: color-mix(in srgb, var(--danger) 11%, transparent); }
-.profile-posts-title { margin: 23px 4px 13px; color: var(--ink); font: 700 20px "Outfit", sans-serif; }
+.profile-posts-title { margin: 23px 4px 13px; color: var(--ink); font: 700 20px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 .profile-highlights { margin-top: 16px; }.profile-highlights > p { margin: 0 0 9px; color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: 1px; }.profile-highlights > div { display: flex; gap: 11px; overflow-x: auto; }.highlight-chip { display: grid; width: 62px; flex: 0 0 62px; gap: 5px; padding: 0; border: 0; color: var(--ink-soft); background: transparent; font-size: 10px; font-weight: 700; text-align: center; }.highlight-chip img, .highlight-chip > span { display: grid; width: 57px; height: 57px; place-items: center; object-fit: cover; border: 2px solid var(--line); border-radius: 50%; color: var(--violet); background: var(--lavender); }.highlight-chip b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* Historias */
@@ -211,7 +212,7 @@ body[data-theme="dark"] .empty-state { border-color: #3d3a4d; }
 .new-story-button:hover { transform: translateY(-1px); box-shadow: 0 12px 22px rgba(109,74,255,.29); }
 .stories-section { padding: 13px; margin-bottom: 15px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: 0 8px 22px rgba(47,37,88,.04); }
 .stories-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 3px 11px; }
-.stories-heading h2 { margin: 0; color: var(--ink); font: 700 15px "Outfit", sans-serif; }
+.stories-heading h2 { margin: 0; color: var(--ink); font: 700 15px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 .stories-list { display: flex; gap: 11px; min-height: 76px; overflow-x: auto; scrollbar-width: none; }
 .stories-list::-webkit-scrollbar { display: none; }
 .story-chip { position: relative; display: grid; width: 62px; flex: 0 0 62px; gap: 5px; padding: 0; border: 0; color: var(--ink-soft); background: transparent; text-align: center; }
@@ -257,7 +258,7 @@ body[data-theme="dark"] .empty-state { border-color: #3d3a4d; }
 
 /* Ajustes */
 .settings-card { display: grid; gap: 26px; padding: 25px; border: 1px solid var(--line); border-radius: 19px; background: var(--paper); box-shadow: var(--shadow); }
-.settings-card h2 { margin: 0; color: var(--ink); font: 700 22px "Outfit", sans-serif; }
+.settings-card h2 { margin: 0; color: var(--ink); font: 700 22px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 .settings-label { margin: 0 0 8px; color: var(--violet); font-size: 10px; font-weight: 700; letter-spacing: 1.2px; }
 .settings-help { margin: 8px 0 16px; color: var(--muted); font-size: 13px; }
 .theme-choices { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 9px; }
@@ -301,7 +302,7 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
 .contact-copy { display: grid; min-width: 0; gap: 3px; }.contact-line { display: flex; min-width: 0; gap: 6px; align-items: center; justify-content: space-between; }.contact-name { display: block; overflow: hidden; color: var(--ink); font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }.contact-line time { flex: 0 0 auto; color: var(--muted); font-size: 9px; }.contact-preview { display: block; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }.contact-unread { display: grid; min-width: 17px; height: 17px; place-items: center; padding: 0 4px; border: 2px solid var(--paper-solid); border-radius: 99px; color: #fff; background: var(--violet); box-shadow: 0 0 0 2px color-mix(in srgb, var(--violet) 16%, transparent); font-size: 8px; font-style: normal; font-weight: 800; }
 .conversation-panel { display: flex; min-width: 0; flex-direction: column; }
 .conversation-empty { display: grid; flex: 1; place-content: center; gap: 6px; padding: 25px; color: var(--muted); text-align: center; }
-.conversation-empty strong { color: var(--ink); font: 700 20px "Outfit", sans-serif; }
+.conversation-empty strong { color: var(--ink); font: 700 20px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 .conversation-header { display: flex; align-items: center; gap: 10px; min-height: 64px; padding: 12px 16px; border-bottom: 1px solid var(--line); background: var(--paper); }
 .conversation-header .avatar { width: 35px; height: 35px; }
 .chat-back { display: none; width: 30px; height: 30px; place-items: center; padding: 0; border: 0; border-radius: 9px; color: var(--ink); background: transparent; font-size: 29px; line-height: 1; }.chat-back:hover { background: var(--lavender); color: var(--violet); }.chat-profile-button { display: grid; min-width: 0; flex: 1; padding: 0; border: 0; color: var(--ink); background: transparent; text-align: left; }.chat-profile-button:hover strong { color: var(--violet); }.conversation-header strong { display: block; overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }.conversation-header span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
@@ -330,8 +331,8 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
 .post-dialog #focused-post { padding: 20px 25px 0; }
 .post-dialog .post-card { padding: 0; border: 0; background: transparent; box-shadow: none; }
 .comments-section { margin-top: 19px; padding: 19px 25px 25px; border-top: 1px solid var(--line); }
-.comments-section h3 { margin: 0 0 13px; font: 700 17px "Outfit", sans-serif; }
-.comments-section h3 span { color: var(--muted); font: 500 12px "DM Sans", sans-serif; }
+.comments-section h3 { margin: 0 0 13px; font: 700 17px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.comments-section h3 span { color: var(--muted); font: 500 12px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 .comments-list { display: grid; gap: 11px; max-height: 280px; margin-bottom: 15px; overflow: auto; }
 .comment { padding: 10px 11px; border-radius: 10px; background: var(--subtle); }
 .comment header { display: flex; gap: 6px; color: var(--muted); font-size: 11px; }
@@ -372,7 +373,7 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
   .composer { padding: 14px; }
   .attach-button span { display: none; }
   .video-link-field { margin-bottom: 10px; }
-  .post-card { padding: 14px; }
+  .post-card { padding: 14px; background: linear-gradient(145deg, var(--paper-solid), color-mix(in srgb, var(--lavender) 15%, var(--paper-solid))); }
   .reels-list { max-height: calc(100vh - 220px); }.reel-card { min-height: min(640px, calc(100vh - 255px)); border-radius: 18px; }.reel-top { padding: 13px; }.reel-bottom { right: 12px; bottom: 13px; left: 13px; }.reel-copy p { font-size: 13px; }
   .messages-panel { grid-template-columns: 1fr; min-height: 0; }
   .contacts-panel { border-right: 0; border-bottom: 1px solid var(--line); }.contacts-heading { padding: 12px 13px; }.contacts-list { display: grid; max-height: calc(100vh - 220px); padding: 8px; overflow-y: auto; }.contact { grid-template-columns: 40px minmax(0, 1fr) auto; gap: 10px; padding: 10px 8px; justify-items: stretch; text-align: left; }.contact .avatar { width: 38px; height: 38px; }.contact-copy { display: grid; }.contact-name { font-size: 12px; }.contact-preview { font-size: 10px; }.contact-unread { position: static; align-self: center; }
@@ -404,461 +405,2165 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
   .theme-choices { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 
-
-/* Experiencia móvil tipo WhatsApp para una conversación abierta */
-@media (max-width: 760px) {
-  #messages-view.chat-open {
-    position: fixed;
-    z-index: 8;
-    inset: 0;
-    width: 100vw;
-    height: 100dvh;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background: var(--canvas);
-  }
-  #messages-view.chat-open .messages-panel {
-    height: 100dvh;
-    min-height: 100dvh;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-  }
-  #messages-view.chat-open .conversation-panel {
-    height: 100dvh;
-    min-height: 100dvh;
-  }
-  #messages-view.chat-open .conversation-header {
-    min-height: 64px;
-    flex: 0 0 64px;
-    padding-top: max(12px, env(safe-area-inset-top));
-  }
-  #messages-view.chat-open .messages-list {
-    flex: 1 1 auto;
-    min-height: 0;
-    max-height: none;
-    padding-bottom: 12px;
-  }
-  #messages-view.chat-open .message-composer {
-    flex: 0 0 auto;
-    padding-bottom: max(11px, env(safe-area-inset-bottom));
-  }
-  body:has(#messages-view.chat-open) .mobile-nav { display: none !important; }
-
-  /* Reels/Shorts: un video por pantalla, scroll vertical y autoplay como TikTok */
-  #reels-view {
-    position: fixed;
-    z-index: 7;
-    inset: 0;
-    width: 100vw;
-    height: 100dvh;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background: #09080f;
-  }
-  #reels-view .view-heading,
-  #reels-view .reels-intro,
-  #reels-view #reels-status,
-  #reels-view #load-more-reels { display: none !important; }
-  #reels-view .reels-list {
-    width: 100%;
-    height: 100dvh;
-    max-height: none;
-    min-height: 100dvh;
-    padding: 0 0 calc(68px + env(safe-area-inset-bottom));
-    gap: 0;
-    overflow-y: auto;
-    scroll-snap-type: y mandatory;
-    scrollbar-width: none;
-  }
-  #reels-view .reels-list::-webkit-scrollbar { display: none; }
-  #reels-view .reel-card {
-    width: 100%;
-    height: 100dvh;
-    min-height: 100dvh;
-    flex: 0 0 100dvh;
-    border: 0;
-    border-radius: 0;
-    box-shadow: none;
-    scroll-snap-align: start;
-  }
-  #reels-view .reel-media,
-  #reels-view .reel-media video,
-  #reels-view .reel-media iframe { width: 100%; height: 100%; }
-  #reels-view .reel-media video { object-fit: cover; }
-  #reels-view .reel-top { padding: max(16px, env(safe-area-inset-top)) 16px 16px; }
-  #reels-view .reel-bottom { bottom: calc(76px + env(safe-area-inset-bottom)); }
+/* Rediseño de navegación y actualización manual */
+#explore-view, #reels-view { display: none !important; }
+.right-rail { display: none; }
+.app-layout { grid-template-columns: 205px minmax(0, 1fr); }
+.feed-search-panel { display: grid; gap: 10px; padding: 14px; margin-bottom: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); box-shadow: 0 8px 22px rgba(47,37,88,.04); }
+.feed-search-panel[hidden] { display: none !important; }
+.feed-search-form { display: flex; gap: 8px; }
+.feed-search-form input { min-width: 0; flex: 1; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; outline: 0; color: var(--ink); background: var(--paper-solid); }
+.feed-search-form input:focus { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(109,74,255,.11); }
+.feed-search-toggle { display: grid !important; }
+.floating-refresh-button { position: fixed; z-index: 50; right: 24px; bottom: 24px; display: grid; width: 48px; height: 48px; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--violet); background: var(--paper-solid); box-shadow: 0 12px 30px rgba(47,37,88,.18); font-size: 22px; transition: transform .2s, box-shadow .2s; }
+.floating-refresh-button:hover { transform: translateY(-2px); box-shadow: 0 16px 34px rgba(47,37,88,.22); }
+.floating-refresh-button.spinning { animation: manual-refresh-spin .35s linear; }
+@keyframes manual-refresh-spin { to { transform: rotate(360deg); } }
+.message-user-search { position: relative; display: flex; align-items: center; gap: 7px; width: 100%; margin: 0 0 12px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; color: var(--muted); background: var(--paper); }
+.message-user-search:focus-within { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(109,74,255,.1); }
+.message-user-search > span { font-size: 17px; }
+.message-user-search input { width: 100%; padding: 11px 4px; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 12px; }
+.message-user-search input::placeholder { color: var(--muted); }
+.message-user-search .user-search-results { left: 0; right: auto; width: min(430px, 100%); }
+.settings-heading { align-items: center; }
+.settings-back-button { min-height: 36px; }
+.sidebar-account-actions { flex-wrap: wrap; }
+@media (max-width: 900px) {
+  .app-layout { grid-template-columns: 1fr; padding-bottom: 90px; }
+  .left-rail { display: none; }
+  .mobile-nav:not([hidden]) { grid-template-columns: repeat(3, 1fr); }
+  .right-rail { display: none; }
+}
+@media (max-width: 640px) {
+  .site-header { height: 70px; }
+  .header-actions { gap: 6px; }
+  .feed-search-toggle { display: grid !important; }
+  .floating-refresh-button { right: 16px; bottom: 82px; width: 46px; height: 46px; }
+  .message-user-search { margin-bottom: 9px; }
+  .feed-search-form { flex-direction: row; }
 }
 
+/* UI final: estilo inspirado en Instagram, sin copiar su identidad */
+.compact-heading { min-height: 42px; margin-bottom: 12px; align-items: center; }
+.view-branding strong { color: var(--ink); font: 800 22px/1 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; letter-spacing: -.5px; }
+.view-heading-actions { display: flex; align-items: center; gap: 8px; }
+.view-search-button { width: 38px; height: 38px; border-radius: 50%; font-size: 21px; }
 
-/* Publicaciones: texto resumido con Ver más */
-.post-text-wrap { margin-top: 8px; }
-.post-content:not(.expanded) { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; overflow: hidden; }
-.post-content.expanded { display: block; }
-.post-more-button { display:inline-block; margin-top:4px; padding:0; border:0; background:transparent; color:var(--violet); font-size:12px; font-weight:800; cursor:pointer; }
-.post-more-button:hover { text-decoration:underline; }
-@media (max-width:760px) { .post-content:not(.expanded) { -webkit-line-clamp:4; } }
+/* Crear publicación: botón compacto debajo de historias */
+.create-post-trigger { display: flex; align-items: center; gap: 11px; width: 100%; margin: 0 0 13px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 14px; color: var(--muted); background: var(--paper); box-shadow: 0 5px 16px rgba(47,37,88,.04); text-align: left; transition: .18s ease; }
+.create-post-trigger:hover { border-color: color-mix(in srgb, var(--violet) 35%, var(--line)); transform: translateY(-1px); }
+.create-post-trigger .avatar { width: 35px; height: 35px; border-radius: 50%; }
+.create-post-trigger span:not(.avatar) { flex: 1; font-size: 13px; }
+.create-post-trigger b { padding: 7px 11px; border-radius: 999px; color: #fff; background: var(--violet); font-size: 11px; }
+.post-composer-collapsed { display: none; }
 
-/* SR 2026 UI polish: navegación, Explorar, perfil y conversaciones */
-.primary-nav { gap: 6px; }
-.profile-nav-link { margin-top: 2px; }
-.profile-nav-link > span:last-child { display: grid; width: auto; min-width: 0; font-size: inherit; text-align: left; }
-.profile-nav-link small { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; font-weight: 600; }
-.profile-nav-link.active small { color: currentColor; opacity: .78; }
-.nav-profile-avatar { width: 28px !important; height: 28px !important; border-radius: 9px 9px 9px 3px !important; font-size: 9px !important; }
-.sidebar-tools { display: grid; gap: 6px; margin-bottom: 12px; }
-.sidebar-account { padding-top: 12px; }
-.sidebar-account-actions { padding: 8px 4px 0; justify-content: space-between; }
+/* Publicaciones tipo red social */
+.post-card { display: block; padding: 15px 0 7px; border: 0; border-radius: 0; box-shadow: none; border-bottom: 1px solid var(--line); background: transparent; }
+.post-card.compact { padding: 0 0 7px; }
+.post-header { padding: 0 2px; }
+.post-author { display: flex; align-items: center; gap: 9px; min-width: 0; padding: 0; border: 0; color: var(--ink); background: transparent; text-align: left; }
+.post-author .avatar { width: 38px; height: 38px; border-radius: 50%; }
+.post-author > span { display: grid; min-width: 0; }
+.post-author b { overflow: hidden; font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.post-author small { margin-top: 2px; color: var(--muted); font-size: 10px; }
+.post-owner-actions { display: flex; margin-left: auto; }
+.post-content { margin: 10px 2px; font-size: 14px; line-height: 1.55; }
+.post-media { width: 100%; max-height: none; aspect-ratio: 1 / 1; margin-top: 10px; object-fit: cover; border: 0; border-radius: 6px; background: var(--subtle); }
+.post-media.video { aspect-ratio: 4 / 5; object-fit: cover; }
+.youtube-embed { aspect-ratio: 16 / 9; }
+.post-actions { display: flex; gap: 2px; margin-top: 5px; }
+.post-action { padding: 7px 5px; font-size: 14px; }
+.post-action span { font-size: 12px; }
+.post-action:hover { background: transparent; }
+.post-action.liked.active { color: #ed315c; }
 
-/* Explorar: búsqueda de personas vive aquí, no en Inicio */
-.explore-people-search { display: grid; gap: 10px; padding-top: 17px; border-top: 1px solid var(--line); }
-.explore-people-search h2 { margin: 0; color: var(--ink); font: 700 18px "Outfit", sans-serif; }
-.explore-user-search { display: flex; align-items: center; gap: 7px; padding: 0 12px; border: 1px solid var(--line); border-radius: 12px; color: var(--muted); background: var(--paper-solid); }
-.explore-user-search:focus-within { border-color: var(--violet); box-shadow: 0 0 0 3px rgba(109,74,255,.1); }
-.explore-user-search input { width: 100%; padding: 11px 0; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 13px; }
-.explore-user-results { display: grid; gap: 5px; padding: 6px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper-solid); box-shadow: var(--shadow); }
+/* Perfil */
+.profile-hero { padding: 24px 4px 19px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+.profile-identity { display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 28px; align-items: center; }
+.profile-identity .avatar-xl { width: 150px; height: 150px; border-radius: 50%; font-size: 32px; }
+.profile-identity h1 { font-size: 24px; }
+.profile-hero .bio { margin: 12px 0 0; }
+.profile-stats { gap: 28px; margin-top: 14px; }
+.profile-stat { font-size: 13px; }
+.profile-stat b { display: inline; margin-right: 4px; font-size: 13px; }
+.profile-actions { margin-top: 15px; }
+.profile-highlights { margin-top: 12px; }
+.profile-posts-title { display: none; }
+.profile-tabs { display: grid; grid-template-columns: 1fr 1fr; margin-top: 18px; border-top: 1px solid var(--line); }
+.profile-tab { min-height: 46px; border: 0; border-bottom: 2px solid transparent; color: var(--muted); background: transparent; font-size: 22px; }
+.profile-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+.profile-posts-list { display: grid !important; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; width: 100%; margin: 0; padding: 0; align-items: stretch; }
+.profile-posts-list .empty-state { grid-column: 1 / -1; margin-top: 12px; }
+.profile-posts-list .profile-post-tile[hidden] { display: none !important; }
+.profile-post-tile { position: relative; display: block; width: 100%; min-width: 0; aspect-ratio: 1 / 1; padding: 0; margin: 0; overflow: hidden; border: 0; border-radius: 0; background: #17171b; cursor: pointer; }
+.profile-post-tile::before { content: ''; position: absolute; inset: 0; z-index: 0; background: linear-gradient(135deg, rgba(255,255,255,.04), transparent 55%); pointer-events: none; }
+.profile-post-tile > * { position: relative; z-index: 1; }
+.profile-post-tile .profile-post-media { display: block; width: 100%; height: 100%; min-width: 100%; min-height: 100%; margin: 0; border: 0; border-radius: 0; object-fit: cover; object-position: center; background: #17171b; }
+.profile-post-tile .youtube-embed { height: 100%; aspect-ratio: auto; pointer-events: none; }
+.profile-text-tile { display: grid; width: 100%; height: 100%; padding: 18px; place-items: center; color: var(--ink); background: linear-gradient(145deg, var(--lavender), var(--paper)); font: 700 13px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; text-align: center; overflow: hidden; }
+.profile-post-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 15px; color: #fff; background: rgba(0,0,0,.48); opacity: 0; font-weight: 800; transition: opacity .16s ease; }
+.profile-post-tile:hover .profile-post-overlay, .profile-post-tile:focus-visible .profile-post-overlay { opacity: 1; }
+.profile-post-overlay span { font-size: 12px; }
 
-/* Perfil con estructura inspirada en redes sociales de fotos */
-.profile-hero { border-radius: 22px; padding: 24px; }
-.profile-identity { align-items: center; }
-.profile-identity .avatar-xl { width: 86px; height: 86px; border-radius: 28px 28px 28px 7px; }
-.profile-stats { gap: 28px; }
-.profile-stat b { font-size: 17px; }
-.profile-actions { align-items: center; }
-.profile-actions .button { min-width: 132px; }
-.profile-posts-title { margin: 26px 2px 12px; padding-top: 17px; border-top: 1px solid var(--line); font: 700 18px "Outfit", sans-serif; }
-.profile-posts-list .post-card { border-radius: 17px; }
+/* Búsqueda desplegable */
+.search-popover { position: relative; }
+.message-user-search { width: min(440px,100%); margin-left: auto; padding: 0 10px; border-radius: 14px; }
+.message-user-search[hidden] { display: none !important; }
+.message-user-search input { font-size: 13px; }
+.message-user-search .user-search-results { top: calc(100% + 8px); width: min(440px, calc(100vw - 30px)); box-shadow: 0 15px 35px rgba(0,0,0,.16); }
 
-/* Inicio más limpio y cercano a una red social de fotos */
-#feed-view .view-heading { margin-bottom: 12px; }
-#feed-view .stories-section { border-radius: 20px; }
-#feed-view .composer { border-radius: 20px; }
-#feed-view .post-card { border-radius: 20px; padding: 18px; }
-#feed-view .posts-list { gap: 14px; }
+/* Ajustes: modo oscuro */
+.settings-theme-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 16px 0 20px; padding: 12px 13px; border: 1px solid var(--line); border-radius: 13px; background: var(--subtle); }
+.settings-theme-row b, .settings-theme-row small { display: block; }
+.settings-theme-row b { font-size: 13px; }
+.settings-theme-row small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+.theme-switch-button { padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: var(--paper-solid); font-size: 11px; font-weight: 800; }
+.theme-switch-button[aria-pressed="true"] { color: #fff; background: var(--violet); border-color: var(--violet); }
 
-/* Chat seleccionado: en escritorio usa todo el espacio como una bandeja de mensajería */
-.app-layout:has(#messages-view.chat-open) { grid-template-columns: minmax(0, 1fr); }
-.app-layout:has(#messages-view.chat-open) .left-rail,
-.app-layout:has(#messages-view.chat-open) .right-rail { display: none; }
-#messages-view.chat-open .messages-panel { min-height: calc(100vh - 145px); height: calc(100vh - 145px); grid-template-columns: 280px minmax(0, 1fr); border-radius: 20px; }
-#messages-view.chat-open .conversation-panel { min-height: 0; }
-#messages-view.chat-open .messages-list { min-height: 0; max-height: none; flex: 1 1 auto; }
-#messages-view.chat-open .chat-back { display: grid; }
-
-/* Reels/Shorts ocupan toda la pantalla cuando se abre la sección */
-.app-layout:has(#reels-view:not([hidden])) { grid-template-columns: 1fr; }
-.app-layout:has(#reels-view:not([hidden])) .left-rail,
-.app-layout:has(#reels-view:not([hidden])) .right-rail { display: none; }
-#reels-view:not([hidden]) { position: fixed; z-index: 7; inset: 0; width: 100vw; height: 100dvh; margin: 0; padding: 0; overflow: hidden; background: #09080f; }
-#reels-view:not([hidden]) .view-heading,
-#reels-view:not([hidden]) .reels-intro,
-#reels-view:not([hidden]) #reels-status,
-#reels-view:not([hidden]) #load-more-reels { display: none !important; }
-#reels-view:not([hidden]) .reels-list { width: 100%; height: 100dvh; max-height: none; min-height: 100dvh; padding: 0; gap: 0; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; }
-#reels-view:not([hidden]) .reels-list::-webkit-scrollbar { display: none; }
-#reels-view:not([hidden]) .reel-card { width: 100%; height: 100dvh; min-height: 100dvh; flex: 0 0 100dvh; border: 0; border-radius: 0; box-shadow: none; scroll-snap-align: start; }
-#reels-view:not([hidden]) .reel-media,
-#reels-view:not([hidden]) .reel-media video,
-#reels-view:not([hidden]) .reel-media iframe { width: 100%; height: 100%; }
-#reels-view:not([hidden]) .reel-media video { object-fit: cover; }
-
-/* Tema: los controles solo existen dentro de Ajustes */
-.interface-theme-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.interface-theme-choices label { display: flex; align-items: center; gap: 9px; min-height: 48px; padding: 11px 13px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink-soft); background: var(--paper-solid); font-size: 12px; font-weight: 800; cursor: pointer; }
-.interface-theme-choices label:has(input:checked) { color: var(--violet); border-color: var(--violet); background: var(--lavender); }
-.interface-theme-choices input { accent-color: var(--violet); }
-.settings-subtitle { margin: 22px 0 0; color: var(--ink); font: 700 15px "Outfit", sans-serif; }
-
-@media (max-width: 760px) {
-  .app-layout:has(#messages-view.chat-open) { grid-template-columns: 1fr; }
-  #messages-view.chat-open .messages-panel { height: 100dvh; min-height: 100dvh; border-radius: 0; }
-  #reels-view:not([hidden]) { z-index: 20; }
-  .interface-theme-choices { grid-template-columns: 1fr; }
-  .profile-hero { padding: 18px; }
-  .profile-identity .avatar-xl { width: 72px; height: 72px; }
-  .profile-stats { gap: 15px; justify-content: space-between; }
-  .profile-actions { flex-wrap: wrap; }
-  .profile-actions .button { flex: 1 1 130px; min-width: 0; }
-}
-
-/* ===== SR UI refresh: Instagram-like feed/profile + compact navigation ===== */
-.view-heading { min-height: 0 !important; margin: 0 0 8px !important; padding: 0 !important; }
-.view-heading .eyebrow, .view-heading h1 { display: none !important; }
-
-/* Sidebar: orden natural y perfil como último elemento */
-.primary-nav { gap: 4px; }
-.create-nav-link { margin-top: 3px; }
-.sidebar-account { margin-top: 8px; }
-
-/* Inicio: más aire y sin título/composer */
-#feed-view { max-width: 680px; margin: 0 auto; }
-#feed-view .stories-section { margin-top: 0; }
-#feed-view .posts-list { margin-top: 12px; }
-
-/* Crear publicación: pantalla propia, estilo limpio tipo Instagram */
-.create-post-view { max-width: 680px; margin: 0 auto; }
-.create-post-shell { overflow: hidden; border: 1px solid var(--line); border-radius: 22px; background: var(--paper-solid); box-shadow: var(--shadow); }
-.create-post-header { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); }
-.create-post-header .icon-button { flex: 0 0 auto; }
-.create-post-header h1 { margin: 2px 0 0; font: 800 22px "Outfit", sans-serif; color: var(--ink); }
-.create-post-composer { border: 0; border-radius: 0; box-shadow: none; margin: 0; }
-
-/* Explorer: solo lupa hasta que el usuario quiera buscar */
-.explore-heading { display: flex !important; justify-content: flex-end; }
-.explore-search-icon { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); background: var(--paper-solid); font-size: 21px; cursor: pointer; }
-.explore-search-icon:hover { color: var(--violet); border-color: var(--violet); }
-.explore-search-panel { position: relative; z-index: 5; display: grid; gap: 12px; margin: 0 0 14px; padding: 14px; border: 1px solid var(--line); border-radius: 17px; background: var(--paper-solid); box-shadow: var(--shadow); }
-.explore-search-panel-top { display: flex; align-items: center; justify-content: space-between; color: var(--ink); font-size: 14px; }
-.explore-search-panel[hidden] { display: none; }
-.explore-user-search { position: relative; }
-.explore-user-search-results { position: absolute; z-index: 10; top: calc(100% + 8px); right: 0; left: 0; max-height: 360px; overflow: auto; border: 1px solid var(--line); border-radius: 15px; background: var(--paper-solid); box-shadow: var(--shadow); }
-.explore-trends-card { margin-top: 0; }
-
-/* Perfil tipo Instagram: cabecera compacta + rejilla 3 columnas */
-.profile-hero { border-radius: 20px; padding: 22px; }
-.profile-identity { align-items: center; }
-.profile-actions { align-items: center; }
-.profile-create-shortcut { display: flex; justify-content: center; margin: 12px 0 4px; }
-.profile-create-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; padding: 9px 18px; border: 0; border-radius: 11px; color: #fff; background: linear-gradient(135deg, #6d4aff, #8f5cff); font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 8px 22px rgba(109,74,255,.22); }
-.profile-create-button span { font-size: 18px; line-height: 1; }
-.profile-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; margin-top: 14px; }
-.profile-grid-item { position: relative; aspect-ratio: 1; min-width: 0; overflow: hidden; padding: 0; border: 0; background: var(--paper); cursor: pointer; }
-.profile-grid-item img, .profile-grid-item video { width: 100%; height: 100%; display: block; object-fit: cover; }
-.profile-grid-item video { background: #111; }
-.profile-grid-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 15px; color: #fff; background: rgba(10,8,18,.48); opacity: 0; transition: opacity .18s ease; font-size: 13px; font-weight: 800; }
-.profile-grid-item:hover .profile-grid-overlay, .profile-grid-item:focus-visible .profile-grid-overlay { opacity: 1; }
-.profile-grid-video { position: absolute; top: 9px; right: 9px; display: grid; place-items: center; width: 27px; height: 27px; border-radius: 50%; color: #fff; background: rgba(0,0,0,.45); font-size: 12px; }
-.profile-grid-text { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 18px; color: var(--ink-soft); background: linear-gradient(135deg, var(--paper), var(--lavender)); font-size: 12px; line-height: 1.5; text-align: center; }
-.profile-posts-title { display: none !important; }
-
-/* Reels en PC: formato vertical centrado, no pantalla gigante */
-#reels-view:not([hidden]) { position: fixed; z-index: 20; inset: 0; width: 100vw; height: 100dvh; margin: 0; padding: 0; overflow: hidden; background: #09080f; }
-#reels-view:not([hidden]) .reels-list { width: 100%; height: 100dvh; min-height: 100dvh; max-height: none; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 16px 0; overflow-y: auto; scroll-snap-type: y mandatory; }
-#reels-view:not([hidden]) .reel-card { width: min(470px, calc(100vw - 48px)); height: calc(100dvh - 32px); min-height: 0; flex: 0 0 calc(100dvh - 32px); border: 1px solid rgba(255,255,255,.1); border-radius: 22px; box-shadow: 0 20px 70px rgba(0,0,0,.45); scroll-snap-align: center; }
-#reels-view:not([hidden]) .reel-media, #reels-view:not([hidden]) .reel-media video, #reels-view:not([hidden]) .reel-media iframe { width: 100%; height: 100%; }
-#reels-view:not([hidden]) .reel-media video { object-fit: cover; }
-#reels-view:not([hidden]) .reels-heading { position: fixed; z-index: 30; top: 14px; left: 14px; right: 14px; display: flex !important; align-items: center; justify-content: space-between; pointer-events: none; }
-.reels-back-button { pointer-events: auto; width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.18); border-radius: 50%; color: #fff; background: rgba(12,10,20,.62); backdrop-filter: blur(12px); font-size: 30px; line-height: 1; cursor: pointer; }
-.reels-brand { padding: 8px 13px; border-radius: 999px; color: #fff; background: rgba(12,10,20,.52); backdrop-filter: blur(12px); font-size: 13px; font-weight: 800; }
-
-/* El texto de publicaciones sigue resumido hasta "Ver más" */
-.post-text-wrap { max-width: 100%; }
-.post-content:not(.expanded) { -webkit-line-clamp: 4; line-clamp: 4; }
-.post-more-button { margin-top: 6px; }
-
-@media (max-width: 760px) {
-  .site-header { padding-inline: 12px; }
-  .header-actions { display: none; }
-  #feed-view, .create-post-view { max-width: none; }
-  .create-post-shell { border-radius: 0; border-right: 0; border-left: 0; box-shadow: none; }
-  .create-post-header { padding: 12px 14px; }
-  .create-post-header h1 { font-size: 20px; }
-  .create-post-composer { padding: 14px; }
-  .explore-search-panel { margin-top: 0; border-radius: 15px; }
-  .profile-hero { padding: 16px; border-radius: 18px; }
-  .profile-identity .avatar-xl { width: 76px; height: 76px; }
-  .profile-grid { gap: 2px; margin-inline: -12px; }
-  .profile-grid-overlay { opacity: 1; inset: auto 0 0; justify-content: flex-start; padding: 7px 9px; background: linear-gradient(transparent, rgba(0,0,0,.62)); font-size: 10px; }
-  .profile-grid-text { padding: 10px; font-size: 10px; }
-  #reels-view:not([hidden]) .reels-list { padding: 0; gap: 0; }
-  #reels-view:not([hidden]) .reel-card { width: 100%; height: 100dvh; min-height: 100dvh; flex-basis: 100dvh; border: 0; border-radius: 0; }
-  #reels-view:not([hidden]) .reels-heading { top: max(10px, env(safe-area-inset-top)); left: 10px; right: 10px; }
-  .reels-back-button { width: 40px; height: 40px; font-size: 28px; }
-  .mobile-nav:not([hidden]) { grid-template-columns: repeat(6, minmax(0,1fr)); }
-  .mobile-nav .mobile-create span { width: 36px; height: 36px; display: grid; place-items: center; margin: auto; border-radius: 11px; color: #fff; background: linear-gradient(135deg, #6d4aff, #8f5cff); font-size: 22px; }
-  .mobile-nav .mobile-create small { margin-top: 1px; }
-}
-
-/* ===== SR performance + responsive polish ===== */
-html { overflow-x: hidden; }
-img, video, iframe { max-width: 100%; }
-.post-media { content-visibility: auto; }
-
-/* Chat: compact, stable and usable on desktop + mobile */
-.messages-panel { grid-template-columns: 250px minmax(0, 1fr); min-height: min(640px, calc(100dvh - 150px)); }
-.contacts-panel { min-width: 0; }
-.messages-list { max-height: none; min-height: 0; overscroll-behavior: contain; }
-.conversation-panel { min-height: 0; }
-.message-composer { position: sticky; bottom: 0; background: var(--paper-solid); }
-#messages-view.chat-open .messages-panel { height: min(680px, calc(100dvh - 125px)); min-height: min(680px, calc(100dvh - 125px)); }
-#messages-view.chat-open .messages-list { min-height: 0; max-height: none; }
-
-/* Perfil: cabecera más compacta, estilo de red social de fotos */
-.profile-hero { padding: 18px 20px 14px; }
-.profile-identity { gap: 14px; }
-.profile-identity .avatar-xl { width: 72px; height: 72px; border-radius: 23px 23px 23px 6px; }
-.profile-identity h1 { margin: 0; font-size: clamp(20px, 2.4vw, 25px); line-height: 1.08; letter-spacing: -.4px; }
-.profile-identity .handle { margin-top: 3px; font-size: 11px; }
-.profile-hero > .bio { margin: 12px 0 10px; font-size: 12px; line-height: 1.45; }
-.profile-stats { margin: 10px 0 12px; gap: 20px; }
-.profile-stat { font-size: 10px; }
-.profile-stat b { font-size: 16px; }
-.profile-actions { gap: 7px; }
-.profile-actions .button { min-height: 36px; min-width: 0; padding: 8px 12px; font-size: 11px; }
-.profile-create-shortcut { margin: 9px 0 2px; }
-.profile-create-button { min-height: 36px; padding: 8px 16px; font-size: 12px; }
-.profile-grid { margin-top: 10px; gap: 2px; }
-
-/* Reels en PC: tarjeta vertical centrada; en teléfono sigue a pantalla completa */
 @media (min-width: 761px) {
-  #reels-view:not([hidden]) .reels-list { padding: 14px 0 22px; gap: 14px; }
-  #reels-view:not([hidden]) .reel-card { width: min(430px, calc(100vw - 80px)); height: min(760px, calc(100dvh - 28px)); min-height: 0; flex-basis: min(760px, calc(100dvh - 28px)); border-radius: 20px; }
+  .app-layout { grid-template-columns: 205px minmax(0, 935px); justify-content: center; }
+  #feed-view, #messages-view { max-width: 630px; }
+  #profile-view { width: 100%; max-width: 935px; }
 }
-
-/* La navegación queda ordenada: Inicio → Explorar → Reels → Crear → Mensajes → Ajustes; perfil abajo */
-.primary-nav .nav-link { min-height: 42px; }
-.sidebar-account { margin-top: auto; }
-
-/* El modo claro/oscuro solo tiene controles dentro de Ajustes */
-.interface-theme-choices { margin-bottom: 4px; }
-
 @media (max-width: 760px) {
-  .messages-panel { grid-template-columns: 1fr; min-height: 0; }
-  #messages-view.chat-open .messages-panel { height: 100dvh; min-height: 100dvh; }
-  #messages-view.chat-open .conversation-panel { min-height: 0; height: 100%; }
-  #messages-view.chat-open .messages-list { padding: 12px; }
-  .conversation-header { min-height: 58px; padding: 9px 12px; }
-  .message-bubble { max-width: 86%; font-size: 12px; }
-  .message-composer { padding: 8px; }
-  .profile-hero { padding: 14px 14px 11px; border-radius: 16px; }
-  .profile-identity { gap: 11px; }
-  .profile-identity .avatar-xl { width: 62px; height: 62px; border-radius: 20px 20px 20px 5px; }
-  .profile-identity h1 { font-size: 19px; }
-  .profile-hero > .bio { margin: 9px 0 8px; font-size: 11px; }
-  .profile-stats { gap: 10px; margin: 8px 0 9px; }
-  .profile-stat b { font-size: 15px; }
-  .profile-actions .button { min-height: 34px; padding: 7px 9px; font-size: 10px; }
-  .profile-create-button { min-height: 34px; font-size: 11px; }
+  .view-branding strong { font-size: 20px; }
+  .profile-hero { padding-top: 8px; }
+  .profile-identity { grid-template-columns: 92px minmax(0,1fr); gap: 16px; }
+  .profile-identity .avatar-xl { width: 92px; height: 92px; font-size: 22px; }
+  .profile-identity h1 { font-size: 20px; }
+  .profile-stats { gap: 13px; }
+  .profile-stat { font-size: 11px; }
+  .profile-stat b { display: block; margin: 0; font-size: 13px; }
+  .profile-actions .button { flex: 1; min-width: 0; }
+  .profile-highlights { margin-top: 8px; }
+  .profile-posts-list { gap: 2px; }
+  .post-media { border-radius: 5px; }
+  .message-user-search { margin-left: 0; }
 }
-
-
-/* ===== SR final polish: refresh manual + profile menu + mobile chat/comments ===== */
-.floating-refresh {
-  position: fixed;
-  z-index: 50;
-  right: 22px;
-  bottom: 22px;
-  display: grid;
-  width: 46px;
-  height: 46px;
-  place-items: center;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--ink);
-  background: color-mix(in srgb, var(--paper-solid) 92%, transparent);
-  box-shadow: 0 12px 30px rgba(20,16,35,.18);
-  backdrop-filter: blur(14px);
-  font-size: 21px;
-  font-weight: 800;
-}
-.floating-refresh:hover { color: var(--violet); border-color: var(--violet); transform: rotate(18deg); }
-.mobile-profile-menu {
-  position: fixed;
-  z-index: 60;
-  min-width: 170px;
+.view-branding { display: none; }
+.profile-info { min-width: 0; }
+.profile-topline { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.profile-menu-button { display: grid; width: 34px; height: 34px; place-items: center; padding: 0; border: 0; border-radius: 50%; color: var(--ink); background: transparent; font-size: 27px; line-height: 1; }
+.profile-menu-button:hover { background: var(--subtle); }
+.profile-menu-wrap { position: relative; flex: 0 0 auto; }
+.profile-menu {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 180px;
   padding: 6px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 13px;
   background: var(--paper-solid);
-  box-shadow: var(--shadow);
+  box-shadow: 0 14px 32px rgba(0,0,0,.24);
 }
-.mobile-profile-menu button {
-  display: block;
+.profile-menu[hidden] { display: none !important; }
+.profile-menu-item {
+  display: flex;
   width: 100%;
-  padding: 11px 12px;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 9px 11px;
   border: 0;
-  border-radius: 10px;
+  border-radius: 9px;
   color: var(--ink);
   background: transparent;
-  text-align: left;
-  font-size: 12px;
+  font: inherit;
+  font-size: 13px;
   font-weight: 700;
+  text-align: left;
+  cursor: pointer;
 }
-.mobile-profile-menu button:hover { background: var(--subtle); }
-.mobile-profile-menu button.danger { color: var(--danger); }
-.profile-menu-button {
+.profile-menu-item span {
   display: grid;
-  width: 36px;
-  height: 36px;
+  width: 22px;
+  height: 22px;
   place-items: center;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  color: var(--ink-soft);
-  background: var(--paper-solid);
-  font-size: 16px;
-  letter-spacing: 2px;
+  color: var(--muted);
+  font-size: 14px;
 }
-.profile-menu-button:hover { color: var(--violet); border-color: var(--violet); }
+.profile-menu-item:hover { background: var(--subtle); }
+.profile-menu-danger { color: #ff6b81; }
+.profile-menu-danger span { color: #ff6b81; }
+@media (max-width: 760px) {
+  .compact-heading { min-height: 34px; margin-bottom: 7px; }
+  .profile-topline h1 { font-size: 19px; }
+  .profile-menu-button { width: 30px; height: 30px; }
+}
 
-/* Comentarios: más ligeros, parecidos a una sección social moderna. */
-.comments-section { padding: 15px 18px 18px; }
-.comments-section h3 { display: flex; align-items: baseline; gap: 5px; margin-bottom: 10px; }
-.comments-list { gap: 3px; max-height: 330px; }
-.comment { display: grid; grid-template-columns: 1fr; padding: 9px 2px; border-radius: 0; background: transparent; }
-.comment + .comment { border-top: 1px solid var(--line); }
-.comment header { gap: 7px; align-items: baseline; font-size: 10px; }
-.comment header b { font-size: 12px; }
-.comment header span { font-size: 9px; color: var(--muted); }
-.comment p { margin: 3px 0 0; padding-left: 0; font-size: 12px; line-height: 1.45; }
-.comment-form { align-items: center; padding-top: 6px; border-top: 1px solid var(--line); }
-.comment-form input { border-radius: 999px; background: var(--subtle); }
-.comment-form .button { min-height: 36px; padding: 8px 13px; border-radius: 999px; font-size: 11px; }
 
-/* Chat estable: una sola zona de scroll y compositor siempre visible. */
-#messages-view.chat-open .conversation-panel { display: flex; flex-direction: column; min-height: 0; }
-#messages-view.chat-open .messages-list { flex: 1 1 auto; min-height: 0; max-height: none; overflow-y: auto; overscroll-behavior: contain; }
-#messages-view.chat-open .message-composer { flex: 0 0 auto; position: relative; bottom: auto; }
-#messages-view.chat-open .conversation-header { flex: 0 0 auto; }
+/* =========================================================
+   SR · Navegación responsive — PC + Android
+   Inspirado en la distribución de la referencia, adaptado a SR.
+   ========================================================= */
+
+/* PC: barra lateral tipo red social + contenido centrado */
+@media (min-width: 901px) {
+  body:has(#app-view:not([hidden])) .site-header {
+    width: min(1280px, calc(100% - 44px));
+    height: 68px;
+  }
+
+  body:has(#app-view:not([hidden])) main {
+    width: min(1280px, calc(100% - 44px));
+  }
+
+  .app-layout {
+    grid-template-columns: 210px minmax(0, 650px) 285px !important;
+    justify-content: center;
+    gap: 26px;
+    padding-top: 10px;
+  }
+
+  .left-rail {
+    position: sticky;
+    top: 12px;
+    height: calc(100vh - 92px);
+    padding: 10px 6px 0 0;
+  }
+
+  .primary-nav {
+    gap: 7px;
+    margin-top: 6px;
+  }
+
+  .nav-link {
+    min-height: 48px;
+    padding: 12px 14px;
+    border-radius: 13px;
+    font-size: 14px;
+  }
+
+  .nav-link span {
+    width: 23px;
+    font-size: 22px;
+  }
+
+  .nav-link.active {
+    color: var(--ink);
+    background: var(--subtle);
+  }
+
+  .nav-link.active span {
+    color: var(--violet);
+  }
+
+  .sidebar-account {
+    padding-top: 18px;
+  }
+
+  #feed-view,
+  #messages-view,
+  #reels-view {
+    width: 100%;
+    max-width: 650px;
+  }
+
+  #profile-view,
+  #settings-view {
+    width: 100%;
+    max-width: 950px;
+  }
+
+  .right-rail {
+    display: grid !important;
+    gap: 14px;
+    position: sticky;
+    top: 12px;
+  }
+
+  .side-card {
+    border-radius: 18px;
+  }
+
+  .view-branding {
+    display: block !important;
+  }
+
+  .compact-heading {
+    min-height: 52px;
+    margin-bottom: 8px;
+  }
+
+  .view-branding strong {
+    font-size: 24px;
+  }
+
+  .stories-section {
+    margin-bottom: 10px;
+  }
+
+  .create-post-trigger {
+    min-height: 58px;
+    border-radius: 16px;
+  }
+
+  .post-card {
+    padding-top: 18px;
+  }
+}
+
+/* Tablet: conserva la barra lateral y elimina solo el panel derecho */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .app-layout {
+    grid-template-columns: 190px minmax(0, 650px) !important;
+    justify-content: center;
+    gap: 22px;
+  }
+
+  .right-rail {
+    display: none !important;
+  }
+}
+
+/* Android / móviles: navegación inferior fija como en la referencia */
+@media (max-width: 760px) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .site-header {
+    width: calc(100% - 24px);
+    height: 58px;
+  }
+
+  .site-header .brand-name,
+  .site-header .install-button {
+    display: none;
+  }
+
+  .site-header .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px 11px 11px 3px;
+  }
+
+  main {
+    width: calc(100% - 20px);
+  }
+
+  .app-layout {
+    display: block;
+    padding: 2px 0 96px;
+  }
+
+  .left-rail,
+  .right-rail {
+    display: none !important;
+  }
+
+  .main-column {
+    width: 100%;
+    max-width: none !important;
+  }
+
+  .view-branding {
+    display: block !important;
+  }
+
+  .compact-heading {
+    min-height: 42px;
+    margin-bottom: 7px;
+  }
+
+  .view-branding strong {
+    font-size: 21px;
+  }
+
+  .stories-section {
+    margin-inline: -2px;
+  }
+
+  .create-post-trigger {
+    min-height: 52px;
+    border-radius: 14px;
+  }
+
+  .post-media {
+    border-radius: 7px;
+  }
+
+  .messages-panel {
+    border-radius: 15px;
+    overflow: hidden;
+  }
+
+  .mobile-nav:not([hidden]) {
+    position: fixed;
+    z-index: 100;
+    right: 8px;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    left: 8px;
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    min-height: 64px;
+    padding: 5px;
+    border: 1px solid var(--line);
+    border-radius: 19px;
+    background: color-mix(in srgb, var(--paper-solid) 94%, transparent);
+    box-shadow: 0 12px 35px rgba(0,0,0,.24);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
+  .mobile-nav button {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 3px;
+    min-width: 0;
+    min-height: 52px;
+    padding: 5px 2px;
+    border: 0;
+    border-radius: 14px;
+    color: var(--muted);
+    background: transparent;
+  }
+
+  .mobile-nav button span {
+    font-size: 21px;
+    line-height: 1;
+  }
+
+  .mobile-nav button small {
+    font-size: 9px;
+    font-weight: 800;
+  }
+
+  .mobile-nav button.active {
+    color: var(--violet);
+    background: var(--lavender);
+  }
+
+  #mobile-search-button.active {
+    color: var(--violet);
+    background: var(--lavender);
+  }
+
+  .floating-refresh-button {
+    right: 14px;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 430px) {
+  .site-header,
+  main {
+    width: calc(100% - 16px);
+  }
+
+  .mobile-nav:not([hidden]) {
+    right: 6px;
+    left: 6px;
+    bottom: calc(6px + env(safe-area-inset-bottom));
+    border-radius: 17px;
+  }
+
+  .mobile-nav button span {
+    font-size: 19px;
+  }
+
+  .mobile-nav button small {
+    font-size: 8px;
+  }
+}
+
+
+/* =========================================================
+   SR 2.0 — navegación de tres apartados + responsive refinado
+   Inicio · Mensajes · Perfil
+   ========================================================= */
+.primary-nav { gap: 6px; }
+.nav-link { min-height: 46px; }
+
+/* El contenido largo no rompe el feed. */
+.post-content-wrap { min-width: 0; }
+.post-content { overflow-wrap: anywhere; word-break: break-word; }
+.post-content.is-collapsed {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+  overflow: hidden;
+  max-height: 10.5em;
+  position: relative;
+}
+.post-content-wrap.is-expanded .post-content,
+.post-content.is-expanded {
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  line-clamp: unset !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+.post-content-wrap.has-more .post-content.is-expanded::after {
+  display: none;
+}
+.post-content-wrap.has-more .post-content.is-collapsed::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 38%;
+  height: 1.6em;
+  background: linear-gradient(90deg, transparent, var(--paper));
+  pointer-events: none;
+}
+.post-expand {
+  margin-top: 5px;
+  padding: 2px 0;
+  border: 0;
+  color: var(--violet);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 800;
+}
+.post-expand:hover { color: var(--violet-dark); text-decoration: underline; }
+
+/* PC: tres columnas limpias, con el contenido como foco. */
+@media (min-width: 901px) {
+  .app-layout { grid-template-columns: 190px minmax(0, 680px) 260px !important; gap: 24px; }
+  .left-rail { padding-right: 2px; }
+  #feed-view, #messages-view { max-width: 680px; }
+  #profile-view, #settings-view { max-width: 940px; }
+  .post-card { padding: 16px 18px; }
+  .messages-panel { min-height: 590px; grid-template-columns: 205px minmax(0, 1fr); }
+  .messages-list { min-height: 430px; max-height: 430px; }
+}
+
+/* Tablet: sidebar + contenido, sin panel lateral sobrante. */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .app-layout { grid-template-columns: 175px minmax(0, 680px) !important; gap: 18px; }
+  .right-rail { display: none !important; }
+}
+
+/* Android/iPhone: solo tres botones abajo y vistas a pantalla completa. */
+@media (max-width: 760px) {
+  .app-layout { padding: 4px 0 calc(92px + env(safe-area-inset-bottom)); }
+  .main-column { min-width: 0; }
+  .view-heading { min-height: 42px; }
+  .composer { border-radius: 15px; }
+  .post-card { padding: 14px 12px; border-radius: 14px; }
+  .post-content { font-size: 14px; line-height: 1.52; }
+  .post-content.is-collapsed { -webkit-line-clamp: 6; max-height: 9.1em; }
+  .post-expand { font-size: 11px; }
+
+  .messages-panel { display: block; min-height: calc(100dvh - 155px); border-radius: 15px; }
+  .contacts-panel { max-height: none; }
+  .contacts-list { max-height: calc(100dvh - 220px); }
+  .conversation-panel { min-height: calc(100dvh - 155px); }
+  .messages-list { min-height: 0; max-height: none; height: calc(100dvh - 280px); }
+  .message-bubble { max-width: 86%; font-size: 13px; }
+  .message-bubble iframe { width: min(260px, 70vw); }
+  .message-composer { position: sticky; bottom: 0; }
+
+  .mobile-nav:not([hidden]) {
+    grid-template-columns: repeat(3, 1fr) !important;
+    right: 10px; left: 10px;
+    min-height: 60px;
+    padding: 4px;
+    border-radius: 18px;
+  }
+  .mobile-nav button { min-height: 50px; }
+  .mobile-nav button span { font-size: 20px; }
+  .mobile-nav button small { font-size: 9px; }
+  .floating-refresh-button { bottom: calc(78px + env(safe-area-inset-bottom)); }
+
+  .profile-hero { border-radius: 16px; }
+  .profile-identity { grid-template-columns: 78px minmax(0,1fr); gap: 13px; }
+  .profile-identity .avatar-xl { width: 78px; height: 78px; }
+  .profile-actions { flex-wrap: wrap; }
+  .profile-actions .button { min-width: 0; }
+
+  .dialog { width: min(100% - 20px, 620px); max-height: calc(100dvh - 20px); border-radius: 18px; }
+  .post-dialog #focused-post { padding: 14px 14px 0; }
+  .comments-section { padding: 15px 14px 18px; }
+  .comment-form { position: sticky; bottom: 0; padding-top: 8px; background: var(--paper-solid); }
+}
+
+@media (max-width: 430px) {
+  .site-header, main { width: calc(100% - 16px); }
+  .post-card { padding-inline: 10px; }
+  .post-actions { gap: 4px; }
+  .post-action { padding-inline: 7px; }
+  .messages-list { height: calc(100dvh - 270px); }
+}
+
+/* Perfil: separar publicaciones y videos */
+.profile-tabs { gap: 0; }
+.profile-tab { display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.profile-tab span { font-size: 12px; font-weight: 700; letter-spacing: .01em; }
+.profile-tab:hover { background: var(--subtle); }
+.profile-post-tile[hidden] { display: none !important; }
+.profile-filter-empty { grid-column: 1 / -1; margin: 18px 0; min-height: 150px; }
+@media (max-width: 760px) {
+  .profile-tab { min-height: 44px; }
+  .profile-tab span { font-size: 11px; }
+}
+
+/* Perfil: separar publicaciones y videos */
+.profile-tabs { gap: 0; }
+.profile-tab { display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.profile-tab span { font-size: 12px; font-weight: 700; letter-spacing: .01em; }
+.profile-tab:hover { background: var(--subtle); }
+.profile-post-tile[hidden] { display: none !important; }
+.profile-filter-empty { grid-column: 1 / -1; margin: 18px 0; min-height: 150px; }
+@media (max-width: 760px) {
+  .profile-tab { min-height: 44px; }
+  .profile-tab span { font-size: 11px; }
+}
+
+
+/* Hide section titles in Inicio and Mensajes */
+#feed-view > .view-heading .view-branding,
+#messages-view > .view-heading .view-branding {
+  visibility: hidden;
+  min-height: 1px;
+}
+
+/* =========================================================
+   SR · Mensajes 2.0 — estilo WhatsApp / Instagram Direct
+   ========================================================= */
+
+/* En escritorio, Mensajes se convierte en una pantalla completa de trabajo:
+   lista de conversaciones a la izquierda + chat a la derecha. */
+@media (min-width: 901px) {
+  body:has(#messages-view:not([hidden])) .app-layout {
+    grid-template-columns: 210px minmax(0, 1fr) !important;
+    gap: 0;
+    width: min(1280px, calc(100% - 44px));
+  }
+
+  body:has(#messages-view:not([hidden])) #messages-view {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+  }
+
+  body:has(#messages-view:not([hidden])) .messages-panel {
+    grid-template-columns: 360px minmax(0, 1fr);
+    min-height: calc(100vh - 92px);
+    height: calc(100vh - 92px);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(20, 18, 35, .07);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-panel {
+    min-width: 0;
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-heading {
+    min-height: 68px;
+    padding: 16px 20px;
+    color: var(--ink);
+    font-size: 22px;
+    letter-spacing: -.4px;
+    text-transform: none;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-heading button {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--subtle);
+    font-size: 21px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-list {
+    gap: 0;
+    padding: 6px 8px 18px;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact {
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    gap: 12px;
+    min-height: 76px;
+    padding: 10px 12px;
+    border-radius: 14px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact:hover,
+  body:has(#messages-view:not([hidden])) .contact.active {
+    background: var(--subtle);
+  }
+
+  body:has(#messages-view:not([hidden])) .contact .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    font-size: 15px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact-copy { gap: 5px; }
+  body:has(#messages-view:not([hidden])) .contact-name { font-size: 14px; }
+  body:has(#messages-view:not([hidden])) .contact-line time { font-size: 10px; }
+  body:has(#messages-view:not([hidden])) .contact-preview { font-size: 12px; }
+
+  body:has(#messages-view:not([hidden])) .conversation-panel {
+    min-width: 0;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-header {
+    flex: 0 0 76px;
+    min-height: 76px;
+    padding: 12px 22px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-header .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-header strong { font-size: 15px; }
+  body:has(#messages-view:not([hidden])) .conversation-header span { font-size: 11px; }
+
+  body:has(#messages-view:not([hidden])) .messages-list {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding: 24px clamp(18px, 4vw, 60px);
+    gap: 8px;
+    background-color: color-mix(in srgb, var(--canvas) 92%, var(--paper-solid));
+    background-image: none;
+  }
+
+  body:has(#messages-view:not([hidden])) .message-bubble {
+    max-width: min(68%, 620px);
+    padding: 10px 13px;
+    border-radius: 16px 16px 16px 5px;
+    font-size: 14px;
+  }
+
+  body:has(#messages-view:not([hidden])) .message-bubble.mine {
+    border-radius: 16px 16px 5px 16px;
+  }
+
+  body:has(#messages-view:not([hidden])) .message-bubble img,
+  body:has(#messages-view:not([hidden])) .message-bubble video {
+    max-width: min(420px, 100%);
+    max-height: 360px;
+    border-radius: 12px;
+  }
+
+  body:has(#messages-view:not([hidden])) .message-composer {
+    flex: 0 0 auto;
+    padding: 12px 18px 15px;
+    border-top: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .message-composer input {
+    padding: 12px 15px;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    background: var(--subtle);
+  }
+
+  body:has(#messages-view:not([hidden])) .message-composer .send-button {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-empty {
+    flex: 1;
+    display: grid;
+    place-content: center;
+    text-align: center;
+    background: var(--paper-solid);
+  }
+}
+
+/* Teléfono: la lista de chats es una pantalla completa y al abrir uno
+   se convierte en una pantalla de conversación independiente. */
+@media (max-width: 760px) {
+  body:has(#messages-view:not([hidden])) .site-header {
+    display: none;
+  }
+
+  body:has(#messages-view:not([hidden])) #messages-view {
+    width: 100vw;
+    max-width: none;
+    min-height: 100dvh;
+    margin: 0;
+    padding: 0;
+  }
+
+  body:has(#messages-view:not([hidden])) #messages-view > .view-heading {
+    min-height: 58px;
+    margin: 0;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) #messages-view > .view-heading .view-search-button {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 22px;
+  }
+
+  body:has(#messages-view:not([hidden])) .messages-panel {
+    min-height: calc(100dvh - 58px);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-panel {
+    min-height: calc(100dvh - 58px);
+    border: 0;
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-heading {
+    min-height: 64px;
+    padding: 12px 16px;
+    color: var(--ink);
+    font-size: 22px;
+    letter-spacing: -.4px;
+    text-transform: none;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-heading button {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--subtle);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-list {
+    max-height: calc(100dvh - 122px);
+    padding: 2px 8px 90px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact {
+    grid-template-columns: 58px minmax(0, 1fr) auto;
+    gap: 12px;
+    min-height: 78px;
+    padding: 10px 10px;
+    border-radius: 13px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact:hover,
+  body:has(#messages-view:not([hidden])) .contact.active {
+    background: var(--subtle);
+  }
+
+  body:has(#messages-view:not([hidden])) .contact .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    font-size: 15px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact-name { font-size: 14px; }
+  body:has(#messages-view:not([hidden])) .contact-preview { font-size: 12px; }
+  body:has(#messages-view:not([hidden])) .contact-line time { font-size: 10px; }
+
+  /* Chat abierto: ocupa literalmente toda la pantalla, sin la barra inferior. */
+  body:has(#messages-view.chat-open:not([hidden])) .mobile-nav {
+    display: none !important;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) #messages-view {
+    position: fixed;
+    z-index: 200;
+    inset: 0;
+    min-height: 100dvh;
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) #messages-view > .view-heading {
+    display: none;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .messages-panel,
+  body:has(#messages-view.chat-open:not([hidden])) .conversation-panel {
+    min-height: 100dvh;
+    height: 100dvh;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .conversation-panel {
+    display: flex;
+    flex-direction: column;
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .conversation-header {
+    flex: 0 0 68px;
+    min-height: 68px;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .chat-back {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    margin-right: 1px;
+    font-size: 34px;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .conversation-header .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .conversation-header strong { font-size: 15px; }
+  body:has(#messages-view.chat-open:not([hidden])) .conversation-header span { font-size: 10px; }
+
+  body:has(#messages-view.chat-open:not([hidden])) .messages-list {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    padding: 15px 11px 12px;
+    gap: 7px;
+    background-color: var(--canvas);
+    background-image: none;
+    overscroll-behavior: contain;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .message-bubble {
+    max-width: 84%;
+    padding: 9px 12px;
+    border-radius: 16px 16px 16px 5px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .message-bubble.mine {
+    border-radius: 16px 16px 5px 16px;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .message-bubble img,
+  body:has(#messages-view.chat-open:not([hidden])) .message-bubble video {
+    max-width: min(78vw, 360px);
+    max-height: 48vh;
+    border-radius: 11px;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .message-composer {
+    flex: 0 0 auto;
+    gap: 7px;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .message-composer input {
+    min-height: 43px;
+    padding: 10px 13px;
+    border: 1px solid var(--line);
+    border-radius: 23px;
+    background: var(--subtle);
+    font-size: 14px;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .message-composer .attach-button {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 22px;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .message-composer .send-button {
+    flex: 0 0 42px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+  }
+}
+
+/* =========================================================
+   SR · Mensajes en PC — ancho completo
+   Corrige el layout de escritorio para que Mensajes no quede
+   encerrado en una columna pequeña ni deje un panel vacío a la derecha.
+   ========================================================= */
+@media (min-width: 901px) {
+  body:has(#messages-view:not([hidden])) .site-header,
+  body:has(#messages-view:not([hidden])) main {
+    width: calc(100% - 48px) !important;
+    max-width: none !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  body:has(#messages-view:not([hidden])) .app-layout {
+    display: grid !important;
+    grid-template-columns: 210px minmax(0, 1fr) !important;
+    gap: 24px !important;
+    width: 100% !important;
+    max-width: none !important;
+    justify-content: stretch !important;
+    padding-top: 8px;
+  }
+
+  body:has(#messages-view:not([hidden])) .right-rail {
+    display: none !important;
+  }
+
+  body:has(#messages-view:not([hidden])) #messages-view {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0;
+    margin: 0;
+  }
+
+  body:has(#messages-view:not([hidden])) #messages-view > .view-heading {
+    min-height: 42px;
+    margin-bottom: 8px;
+  }
+
+  body:has(#messages-view:not([hidden])) .messages-panel {
+    width: 100%;
+    height: calc(100vh - 118px);
+    min-height: 620px;
+    grid-template-columns: 360px minmax(0, 1fr) !important;
+    border-radius: 18px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-panel {
+    min-width: 0;
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-panel {
+    min-width: 0;
+  }
+}
+
+/* =========================================================
+   SR Mensajes · Escritorio estilo WhatsApp Web
+   ========================================================= */
+@media (min-width: 901px) {
+  body:has(#messages-view:not([hidden])) {
+    overflow: hidden;
+  }
+
+  body:has(#messages-view:not([hidden])) .site-header {
+    display: none !important;
+  }
+
+  body:has(#messages-view:not([hidden])) main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has(#messages-view:not([hidden])) .app-layout {
+    width: 100% !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    max-width: none !important;
+    grid-template-columns: 210px minmax(0, 1fr) !important;
+    gap: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has(#messages-view:not([hidden])) #messages-view {
+    height: 100vh !important;
+    min-height: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has(#messages-view:not([hidden])) #messages-view > .view-heading {
+    display: none !important;
+  }
+
+  body:has(#messages-view:not([hidden])) .messages-panel {
+    width: 100% !important;
+    height: 100vh !important;
+    min-height: 0 !important;
+    grid-template-columns: 430px minmax(0, 1fr) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-panel {
+    min-width: 0;
+    border-right: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-heading {
+    display: block;
+    min-height: auto;
+    padding: 26px 24px 14px;
+    background: var(--paper-solid);
+    color: var(--ink);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 25px;
+    font-weight: 800;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-heading > .contacts-title-row > span {
+    font-size: 25px;
+    font-weight: 800;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-heading button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--subtle);
+    color: var(--ink);
+    font-size: 20px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 14px;
+    border-radius: 23px;
+    background: color-mix(in srgb, var(--subtle) 92%, var(--paper-solid));
+    color: var(--muted);
+    box-sizing: border-box;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-search span {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-search input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 14px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-search input::placeholder {
+    color: var(--muted);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-filters {
+    display: flex;
+    gap: 8px;
+    padding-top: 13px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-filter {
+    width: auto;
+    height: 34px;
+    min-width: 74px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-filter.active {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+    background: color-mix(in srgb, var(--accent) 17%, var(--paper-solid));
+    color: var(--ink);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-list {
+    height: calc(100vh - 190px);
+    max-height: none;
+    padding: 8px 10px 28px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    gap: 2px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact {
+    grid-template-columns: 62px minmax(0, 1fr) auto;
+    min-height: 78px;
+    padding: 9px 12px;
+    gap: 12px;
+    border-radius: 12px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact:hover {
+    background: var(--subtle);
+  }
+
+  body:has(#messages-view:not([hidden])) .contact.active {
+    background: color-mix(in srgb, var(--subtle) 88%, var(--accent));
+  }
+
+  body:has(#messages-view:not([hidden])) .contact .avatar {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact-name {
+    font-size: 15px;
+    font-weight: 750;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact-preview {
+    font-size: 13px;
+    line-height: 1.35;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact-line time {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-panel {
+    min-width: 0;
+    height: 100vh;
+    border: 0;
+    border-radius: 0;
+    background: var(--canvas);
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-header {
+    flex: 0 0 76px;
+    min-height: 76px;
+    padding: 10px 22px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-header .avatar {
+    width: 50px;
+    height: 50px;
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-header strong {
+    font-size: 15px;
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-header span {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  body:has(#messages-view:not([hidden])) .messages-list {
+    padding: 28px clamp(24px, 5vw, 100px) 18px;
+    gap: 7px;
+    background: var(--canvas);
+    background-image:
+      radial-gradient(circle at 15% 20%, color-mix(in srgb, var(--accent) 4%, transparent) 0 2px, transparent 3px),
+      radial-gradient(circle at 80% 70%, color-mix(in srgb, var(--accent) 3%, transparent) 0 2px, transparent 3px);
+    background-size: 80px 80px, 110px 110px;
+  }
+
+  body:has(#messages-view:not([hidden])) .message-bubble {
+    max-width: min(64%, 650px);
+    padding: 10px 13px;
+    border-radius: 8px 16px 16px 16px;
+    font-size: 14px;
+    line-height: 1.42;
+  }
+
+  body:has(#messages-view:not([hidden])) .message-bubble.mine {
+    border-radius: 16px 8px 16px 16px;
+  }
+
+  body:has(#messages-view:not([hidden])) .message-composer {
+    flex: 0 0 auto;
+    padding: 10px 18px 14px;
+    border-top: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .message-composer input {
+    min-height: 44px;
+    padding: 11px 16px;
+    border: 1px solid var(--line);
+    border-radius: 23px;
+    background: var(--subtle);
+  }
+}
+
+
+/* =========================================================
+   SR · PC — Inicio, Perfil y Ajustes sin paneles flotantes
+   En escritorio la aplicación ocupa todo el viewport, igual que
+   Mensajes: la navegación queda a la izquierda y el contenido
+   fluye directamente sobre el lienzo.
+   ========================================================= */
+@media (min-width: 901px) {
+  body:has(#feed-view:not([hidden])) .site-header,
+  body:has(#profile-view:not([hidden])) .site-header,
+  body:has(#settings-view:not([hidden])) .site-header {
+    display: none !important;
+  }
+
+  body:has(#feed-view:not([hidden])) main,
+  body:has(#profile-view:not([hidden])) main,
+  body:has(#settings-view:not([hidden])) main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has(#feed-view:not([hidden])) .app-layout,
+  body:has(#profile-view:not([hidden])) .app-layout,
+  body:has(#settings-view:not([hidden])) .app-layout {
+    display: grid !important;
+    grid-template-columns: 210px minmax(0, 1fr) !important;
+    gap: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 100vh !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  body:has(#feed-view:not([hidden])) .right-rail,
+  body:has(#profile-view:not([hidden])) .right-rail,
+  body:has(#settings-view:not([hidden])) .right-rail {
+    display: none !important;
+  }
+
+  body:has(#feed-view:not([hidden])) .left-rail,
+  body:has(#profile-view:not([hidden])) .left-rail,
+  body:has(#settings-view:not([hidden])) .left-rail {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    min-height: 100vh;
+    padding: 32px 18px 22px;
+    box-sizing: border-box;
+    border-right: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#feed-view:not([hidden])) .main-column,
+  body:has(#profile-view:not([hidden])) .main-column,
+  body:has(#settings-view:not([hidden])) .main-column {
+    min-width: 0;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: var(--canvas);
+    box-shadow: none !important;
+  }
+
+  /* Inicio */
+  body:has(#feed-view:not([hidden])) #feed-view {
+    overflow-y: auto;
+    height: 100vh;
+  }
+
+  body:has(#feed-view:not([hidden])) #feed-view > .view-heading {
+    min-height: 64px;
+    margin: 0;
+    padding: 0 34px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#feed-view:not([hidden])) #feed-search-panel,
+  body:has(#feed-view:not([hidden])) .stories-section,
+  body:has(#feed-view:not([hidden])) .create-post-trigger,
+  body:has(#feed-view:not([hidden])) #post-form,
+  body:has(#feed-view:not([hidden])) #feed-status,
+  body:has(#feed-view:not([hidden])) #posts-list,
+  body:has(#feed-view:not([hidden])) #feed-sentinel,
+  body:has(#feed-view:not([hidden])) #load-more-posts {
+    width: min(820px, calc(100% - 68px));
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+
+  body:has(#feed-view:not([hidden])) .stories-section {
+    margin-top: 20px;
+    padding: 0 0 16px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  body:has(#feed-view:not([hidden])) .create-post-trigger {
+    margin-top: 18px;
+    padding: 12px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  body:has(#feed-view:not([hidden])) #post-form {
+    padding: 18px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  body:has(#feed-view:not([hidden])) #posts-list {
+    gap: 0;
+    padding-bottom: 50px;
+  }
+
+  /* Perfil */
+  body:has(#profile-view:not([hidden])) #profile-view {
+    overflow-y: auto;
+    height: 100vh;
+  }
+
+  body:has(#profile-view:not([hidden])) #profile-page-content,
+  body:has(#profile-view:not([hidden])) #profile-posts-list {
+    width: min(1040px, calc(100% - 68px));
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  body:has(#profile-view:not([hidden])) #profile-page-content {
+    padding-top: 30px;
+  }
+
+  body:has(#profile-view:not([hidden])) .profile-hero {
+    padding: 0 0 28px;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  body:has(#profile-view:not([hidden])) .profile-hero.has-custom-background {
+    padding: 28px;
+    border-radius: 0;
+  }
+
+  body:has(#profile-view:not([hidden])) .profile-posts-list {
+    padding: 24px 0 60px;
+  }
+
+  /* Ajustes */
+  body:has(#settings-view:not([hidden])) #settings-view {
+    overflow-y: auto;
+    height: 100vh;
+  }
+
+  body:has(#settings-view:not([hidden])) .settings-heading {
+    min-height: 76px;
+    margin: 0;
+    padding: 0 34px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper-solid);
+  }
+
+  body:has(#settings-view:not([hidden])) #settings-form {
+    width: min(900px, calc(100% - 68px));
+    margin: 30px auto 70px;
+    padding: 0 0 35px;
+    gap: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  body:has(#settings-view:not([hidden])) #settings-form > section {
+    padding: 26px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  body:has(#settings-view:not([hidden])) #settings-form > section:first-child {
+    padding-top: 0;
+  }
+
+  body:has(#settings-view:not([hidden])) #save-settings-button {
+    margin-top: 24px;
+  }
+}
+
+/* v15: la lista de Mensajes muestra únicamente conversaciones reales, ordenadas por último mensaje. */
+@media (min-width: 761px) {
+  body:has(#messages-view:not([hidden])) .contacts-list { padding-top: 10px; }
+}
+
+/* v16 - Corrección de la lista de chats en PC.
+   Los elementos ya no ocupan toda la altura disponible cuando solo hay una conversación. */
+@media (min-width: 761px) {
+  body:has(#messages-view:not([hidden])) .contacts-list {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    align-content: flex-start;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-list .contact {
+    flex: 0 0 auto;
+    align-self: stretch;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact-unread {
+    display: none !important;
+  }
+}
+
+
+/* v17 - Android: los apartados principales siguen el mismo lenguaje de pantalla
+   completa que PC. No se muestran como tarjetas/etiquetas flotantes. */
+@media (max-width: 760px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding-inline: 0 !important;
+  }
+
+  .main-column {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Inicio */
+  body:has(#feed-view:not([hidden])) #feed-view,
+  body:has(#profile-view:not([hidden])) #profile-view,
+  body:has(#settings-view:not([hidden])) #settings-view {
+    width: 100vw !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: var(--canvas);
+  }
+
+  body:has(#feed-view:not([hidden])) #feed-view > .view-heading,
+  body:has(#profile-view:not([hidden])) #profile-view > .view-heading,
+  body:has(#settings-view:not([hidden])) #settings-view > .settings-heading {
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+  }
+
+  body:has(#feed-view:not([hidden])) #feed-search-panel,
+  body:has(#feed-view:not([hidden])) .stories-section,
+  body:has(#feed-view:not([hidden])) .create-post-trigger,
+  body:has(#feed-view:not([hidden])) #post-form,
+  body:has(#feed-view:not([hidden])) #feed-status,
+  body:has(#feed-view:not([hidden])) #posts-list,
+  body:has(#feed-view:not([hidden])) #feed-sentinel,
+  body:has(#feed-view:not([hidden])) #load-more-posts {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  /* Las publicaciones dejan de ser "etiquetas" dentro de una tarjeta. */
+  body:has(#feed-view:not([hidden])) .post-card {
+    width: 100%;
+    margin-inline: 0;
+    border-left: 0;
+    border-right: 0;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body:has(#feed-view:not([hidden])) #posts-list {
+    gap: 0 !important;
+  }
+
+  /* Perfil: cabecera y contenido a pantalla completa. */
+  body:has(#profile-view:not([hidden])) #profile-page-content,
+  body:has(#profile-view:not([hidden])) #profile-posts-list {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  body:has(#profile-view:not([hidden])) #profile-page-content {
+    padding-top: 0 !important;
+  }
+
+  body:has(#profile-view:not([hidden])) .profile-hero {
+    border-radius: 0 !important;
+    border-left: 0;
+    border-right: 0;
+    box-shadow: none !important;
+  }
+
+  body:has(#profile-view:not([hidden])) .profile-hero.has-custom-background {
+    border-radius: 0 !important;
+  }
+
+  body:has(#profile-view:not([hidden])) .profile-posts-list {
+    padding-inline: 0 !important;
+  }
+
+  /* Ajustes: cada sección ocupa el ancho y se separa con líneas, no con tarjetas. */
+  body:has(#settings-view:not([hidden])) #settings-form {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 0 calc(35px + env(safe-area-inset-bottom)) !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body:has(#settings-view:not([hidden])) #settings-form > section {
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Los contenedores de tarjetas genéricos de las vistas principales también
+     se funden con la página en Android. */
+  body:has(#feed-view:not([hidden])) .card,
+  body:has(#profile-view:not([hidden])) .card,
+  body:has(#settings-view:not([hidden])) .card {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+
+/* v18 - Unificación de la barra lateral en PC.
+   Mensajes usaba una barra a pantalla completa sin el mismo padding
+   que Inicio/Perfil. Ahora los tres apartados comparten exactamente
+   el mismo ancho, altura, separación y posición de los botones. */
+@media (min-width: 901px) {
+  body:has(#messages-view:not([hidden])) .left-rail {
+    position: sticky !important;
+    top: 0 !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+    padding: 32px 18px 22px !important;
+    box-sizing: border-box !important;
+    border-right: 1px solid var(--line) !important;
+    background: var(--paper-solid) !important;
+    overflow: hidden;
+  }
+
+  body:has(#messages-view:not([hidden])) .primary-nav {
+    margin-bottom: 14px !important;
+  }
+
+  body:has(#messages-view:not([hidden])) .nav-link {
+    width: 100% !important;
+    padding: 11px 12px !important;
+    border-radius: 11px !important;
+  }
+
+  body:has(#messages-view:not([hidden])) .sidebar-account {
+    margin-top: auto !important;
+    padding-top: 15px !important;
+  }
+}
+
+
+/* =========================================================
+   v20 · Android — corrección final de acceso y buscador
+   ========================================================= */
+@media (max-width: 760px) {
+  /* ---------- Acceso: registro / inicio de sesión ---------- */
+  #auth-view.auth-layout {
+    width: 100%;
+    min-height: calc(100dvh - 58px);
+    display: grid;
+    grid-template-columns: 1fr;
+    align-content: start;
+    gap: 0;
+    padding: 18px 14px calc(30px + env(safe-area-inset-bottom));
+  }
+
+  /* En móvil el mensaje promocional no debe empujar el formulario
+     ni provocar una pantalla excesivamente larga. */
+  #auth-view .hero-copy {
+    display: none;
+  }
+
+  #auth-view .auth-card {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 22px 16px 20px;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background: var(--paper);
+    box-shadow: var(--shadow);
+  }
+
+  #auth-view .auth-card-heading {
+    padding: 2px 2px 0;
+  }
+
+  #auth-view .auth-card-heading .eyebrow {
+    margin-bottom: 8px;
+    font-size: 9px;
+  }
+
+  #auth-view .auth-card h2 {
+    font-size: 28px;
+    line-height: 1.08;
+    letter-spacing: -1px;
+  }
+
+  #auth-view .auth-card-heading > p:last-child {
+    margin-top: 7px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  #auth-view .auth-tabs {
+    width: 100%;
+    margin: 20px 0 20px;
+    padding: 4px;
+    gap: 3px;
+    border-radius: 12px;
+  }
+
+  #auth-view .auth-tab {
+    min-height: 43px;
+    padding: 8px 6px;
+    border-radius: 9px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  #auth-view #auth-form {
+    width: 100%;
+  }
+
+  #auth-view .field {
+    width: 100%;
+    gap: 7px;
+    margin-bottom: 15px;
+    font-size: 12px;
+  }
+
+  #auth-view .field input {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    padding: 12px 13px;
+    border-radius: 12px;
+    font-size: 16px; /* evita zoom automático en Android/iOS */
+    line-height: 1.2;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+
+  #auth-view .button-full {
+    min-height: 48px;
+    margin-top: 4px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  #auth-view .auth-footnote {
+    margin: 15px 4px 0;
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  /* ---------- Mensajes: buscador de chats ---------- */
+  body:has(#messages-view:not([hidden])) #messages-view {
+    width: 100vw !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body:has(#messages-view:not([hidden])) .messages-panel {
+    display: block !important;
+    width: 100% !important;
+    min-height: calc(100dvh - 58px) !important;
+    height: auto !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+    background: var(--paper-solid);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: calc(100dvh - 58px) !important;
+    border: 0 !important;
+    background: var(--paper-solid);
+  }
+
+  /* El encabezado pasa de flex horizontal a columna:
+     título arriba y buscador debajo. */
+  body:has(#messages-view:not([hidden])) .contacts-heading {
+    display: block !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    padding: 14px 12px 12px !important;
+    border-bottom: 1px solid var(--line);
+    box-sizing: border-box !important;
+    color: var(--ink);
+    background: var(--paper-solid);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 20px;
+    font-weight: 800;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-title-row {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 36px;
+    margin: 0 0 11px !important;
+    gap: 10px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-title-row > span {
+    min-width: 0;
+    color: var(--ink);
+    font-size: 21px !important;
+    line-height: 1.1;
+    font-weight: 800;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-heading > .contacts-title-row > button,
+  body:has(#messages-view:not([hidden])) .contacts-heading button {
+    flex: 0 0 auto;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    color: var(--ink);
+    background: var(--subtle);
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-search {
+    display: flex !important;
+    align-items: center;
+    flex-direction: row !important;
+    gap: 8px;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 44px !important;
+    height: 44px;
+    margin: 0 !important;
+    padding: 0 12px !important;
+    box-sizing: border-box !important;
+    border: 1px solid transparent;
+    border-radius: 22px;
+    color: var(--muted);
+    background: var(--subtle);
+    overflow: hidden;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-search:focus-within {
+    border-color: color-mix(in srgb, var(--violet) 45%, var(--line));
+    box-shadow: 0 0 0 3px rgba(109,74,255,.10);
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-search > span {
+    flex: 0 0 auto;
+    display: grid;
+    width: 20px;
+    height: 20px;
+    place-items: center;
+    margin: 0 !important;
+    font-size: 18px !important;
+    line-height: 1;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-search input,
+  body:has(#messages-view:not([hidden])) #contacts-filter {
+    flex: 1 1 auto;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    height: 42px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    outline: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: var(--ink) !important;
+    font-family: inherit;
+    font-size: 15px !important;
+    line-height: 42px;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-search input::placeholder {
+    color: var(--muted) !important;
+    opacity: 1;
+  }
+
+  /* Quita el botón nativo de limpiar de Android/Chrome para que
+     no deforme el campo; la búsqueda sigue funcionando normalmente. */
+  body:has(#messages-view:not([hidden])) #contacts-filter::-webkit-search-cancel-button,
+  body:has(#messages-view:not([hidden])) #contacts-filter::-webkit-search-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    display: none;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-list {
+    width: 100% !important;
+    max-height: calc(100dvh - 180px) !important;
+    padding: 4px 8px calc(90px + env(safe-area-inset-bottom)) !important;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    gap: 11px;
+    min-height: 70px;
+    padding: 8px 7px;
+    border-radius: 12px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact .avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact-name {
+    font-size: 13px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contact-preview {
+    max-width: 100%;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 430px) {
+  #auth-view.auth-layout {
+    padding: 14px 10px calc(24px + env(safe-area-inset-bottom));
+  }
+
+  #auth-view .auth-card {
+    padding: 20px 14px 18px;
+    border-radius: 18px;
+  }
+
+  #auth-view .auth-card h2 {
+    font-size: 26px;
+  }
+
+  #auth-view .auth-tab {
+    font-size: 11px;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-heading {
+    padding-inline: 10px !important;
+  }
+
+  body:has(#messages-view:not([hidden])) .contacts-list {
+    padding-inline: 6px !important;
+  }
+}
+
+
+/* =========================================================
+   v21 · FIX CRÍTICO — una sola pantalla visible
+   Las reglas de escritorio usan display: grid !important
+   en .app-layout; eso podía vencer a [hidden] y mostrar
+   Inicio/Perfil detrás del formulario de acceso.
+   ========================================================= */
+#auth-view[hidden],
+#app-view[hidden],
+#mobile-nav[hidden],
+#notifications-toggle[hidden] {
+  display: none !important;
+}
+
+/* Cuando se está autenticando, el contenido de la app no
+   debe afectar el ancho, scroll o posición del formulario. */
+body:has(#auth-view:not([hidden])) {
+  overflow-x: hidden;
+}
+
+body:has(#auth-view:not([hidden])) main {
+  width: min(1220px, calc(100% - 48px));
+  max-width: 1220px;
+  margin: 0 auto;
+}
 
 @media (max-width: 760px) {
-  .floating-refresh { right: 14px; bottom: calc(82px + env(safe-area-inset-bottom)); width: 42px; height: 42px; font-size: 19px; }
-  body:has(#messages-view.chat-open) .floating-refresh { display: none; }
-  .profile-actions { position: relative; }
-  .profile-menu-button { margin-left: auto; }
-  #messages-view.chat-open .messages-panel,
-  #messages-view.chat-open .conversation-panel { width: 100vw; height: 100dvh; min-height: 0; }
-  #messages-view.chat-open .conversation-header { min-height: 58px; padding: max(8px, env(safe-area-inset-top)) 10px 8px; }
-  #messages-view.chat-open .conversation-header .avatar { width: 34px; height: 34px; }
-  #messages-view.chat-open .messages-list { padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); }
-  #messages-view.chat-open .message-composer { padding: 7px 8px max(7px, env(safe-area-inset-bottom)); }
-  #messages-view.chat-open .message-composer input { padding: 9px 10px; font-size: 13px; }
-  .mobile-profile-menu { min-width: 160px; }
-  .comments-section { padding: 12px 14px 14px; }
+  body:has(#auth-view:not([hidden])) main {
+    width: 100%;
+    max-width: none;
+  }
+
+  body:has(#auth-view:not([hidden])) .site-header {
+    width: calc(100% - 28px);
+    height: 58px;
+  }
+
+  body:has(#auth-view:not([hidden])) #auth-view.auth-layout {
+    min-height: calc(100dvh - 58px);
+    margin: 0;
+  }
 }
 
-body:has(#auth-view:not([hidden])) .floating-refresh, body:has(#auth-view:not([hidden])) .mobile-profile-menu { display:none !important; }
-.profile-hero { position: relative; }
-.profile-menu-button { position:absolute; top:14px; right:14px; }
-@media (max-width:760px){ .profile-menu-button { top:12px; right:12px; } }
+@media (max-width: 430px) {
+  body:has(#auth-view:not([hidden])) .site-header {
+    width: calc(100% - 20px);
+  }
+}
 
 
-/* ===== SR social features: notifications, followers, replies and Guardados ===== */
-.post-action.saved { margin-left: auto; font-size: 15px; opacity: .72; }
-.post-action.saved.active { color: var(--violet); opacity: 1; }
-.relationships-dialog { width: min(520px, calc(100% - 28px)); }
-.relationships-list { display: grid; gap: 4px; padding: 10px 18px 20px; }
-.relationship-row { display: grid; grid-template-columns: 40px minmax(0,1fr) auto; align-items: center; gap: 10px; padding: 9px; border-radius: 12px; }
-.relationship-row:hover { background: var(--subtle); }
-.relationship-row .avatar { width: 40px; height: 40px; }
-.relationship-main { display: grid; min-width: 0; gap: 2px; padding: 0; border: 0; color: var(--ink); background: transparent; text-align: left; }
-.relationship-main b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.relationship-main small { color: var(--muted); font-size: 10px; }
-.relationship-follow { min-height: 31px; padding: 6px 11px; border: 1px solid var(--line); border-radius: 9px; color: var(--ink-soft); background: var(--paper-solid); font-size: 10px; font-weight: 800; }
-.relationship-follow:hover { border-color: var(--violet); color: var(--violet); }
-.comment-reply { margin-left: clamp(16px, calc(var(--comment-depth) * 24px), 72px); border-left: 2px solid var(--lavender); border-radius: 0 10px 10px 0; }
-.comment-reply-button { margin-top: 5px; padding: 0; border: 0; color: var(--violet); background: transparent; font-size: 10px; font-weight: 800; }
-.comment-reply-context { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:0 0 7px; padding:7px 9px; border-radius:9px; color:var(--ink-soft); background:var(--lavender); font-size:10px; }
-.comment-reply-context button { border:0; color:var(--muted); background:transparent; font-size:15px; }
-.notification-item { transition: background .15s, transform .15s; }
-.notification-item:hover { background: var(--subtle); transform: translateX(2px); }
-.mobile-profile-menu { min-width: 190px; }
-@media (max-width:760px) {
-  .mobile-nav:not([hidden]) { grid-template-columns: repeat(6, minmax(0,1fr)); }
-  .mobile-nav button { min-width:0; }
-  .relationship-row { grid-template-columns: 36px minmax(0,1fr) auto; }
-  .relationship-row .avatar { width:36px; height:36px; }
-  .comment-reply { margin-left: clamp(10px, calc(var(--comment-depth) * 16px), 48px); }
+/* =========================================================
+   v22 · FIX DEFINITIVO — Registro / Inicio de sesión
+   Nunca permitir que la aplicación quede visible detrás
+   del formulario de autenticación.
+   ========================================================= */
+
+/* [hidden] siempre gana, incluso frente a reglas con !important
+   que usan body:has(...) para el layout de la aplicación. */
+html body #auth-view[hidden],
+html body #app-view[hidden],
+html body #mobile-nav[hidden],
+html body #notifications-toggle[hidden] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Si el acceso está activo, la aplicación completa se oculta.
+   Esto también cubre reglas que detectan feed-view/profile-view
+   aunque su sección siga en el DOM. */
+html body:has(#auth-view:not([hidden])) #app-view,
+html body:has(#auth-view:not([hidden])) #mobile-nav,
+html body:has(#auth-view:not([hidden])) #notifications-toggle {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Si la aplicación está activa, el formulario de acceso desaparece. */
+html body:has(#app-view:not([hidden])) #auth-view {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* La pantalla de acceso ocupa la página sin dejar espacio fantasma
+   de la aplicación. */
+html body:has(#auth-view:not([hidden])) main {
+  position: relative;
+  isolation: isolate;
+}
+
+html body:has(#auth-view:not([hidden])) .auth-layout {
+  position: relative;
+  z-index: 2;
+}
+
+/* V24: rendimiento + iconografía */
+.ui-icon {
+  display: inline-block;
+  width: 1.15em;
+  height: 1.15em;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vertical-align: -0.16em;
+}
+.post-action .ui-icon { width: 17px; height: 17px; }
+.post-action.liked.active .icon-heart { fill: currentColor; }
+.reel-action .ui-icon { width: 20px; height: 20px; }
+.notification-icon .ui-icon { width: 18px; height: 18px; }
+.post-card, .reel-card, .message-bubble, .contact-row {
+  contain: layout paint style;
+}
+.post-card, .message-bubble { content-visibility: auto; contain-intrinsic-size: 1px 180px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+@media (max-width: 720px) {
+  .post-action { min-height: 36px; padding: 7px 9px; }
+  .post-action .ui-icon { width: 18px; height: 18px; }
+  .message-reactions button { min-height: 30px; min-width: 30px; padding: 4px 7px; font-size: 13px; }
 }
