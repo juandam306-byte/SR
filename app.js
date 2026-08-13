@@ -60,6 +60,10 @@ let contactsLoading = false;
 let contactsReloadQueued = false;
 let contactsFilter = 'all';
 let contactsQuery = '';
+let contactsSearchTimer = null;
+let contactsSearchResults = [];
+let contactsSearchResultsFollowing = new Set();
+let contactsSearchResultsPending = new Set();
 let storyGroups = new Map();
 let activeStoryQueue = [];
 let activeStoryIndex = -1;
@@ -1107,16 +1111,81 @@ async function toggleSearchFollow(profile, follows, pending = false) {
 function renderContacts() {
   const list = $('#contacts-list');
   const query = contactsQuery.trim().toLocaleLowerCase('es');
-  const filtered = contacts.filter((profile) => {
+
+  const filteredChats = contacts.filter((profile) => {
     const haystack = `${profile.display_name || ''} ${usernameFor(profile)}`.toLocaleLowerCase('es');
     return !query || haystack.includes(query);
   });
-  if (!filtered.length) { list.innerHTML = `<p class="notification-empty">${contacts.length ? 'No encontramos chats que coincidan.' : 'Aún no hay conversaciones. Busca una persona para comenzar.'}</p>`; return; }
-  list.innerHTML = filtered.map((profile) => {
+
+  const chatMarkup = filteredChats.map((profile) => {
     const active = selectedChat?.id === profile.id;
     const preview = contactPreviews.get(profile.id) || usernameFor(profile);
     return `<button class="contact${active ? ' active' : ''}" type="button" data-contact-id="${profile.id}">${avatarMarkup(profile)}<span class="contact-copy"><span class="contact-line"><b class="contact-name">${escapeHtml(profile.display_name || 'Miembro de SR')}${badgeMarkup(profile)}</b><time>${escapeHtml(chatTime(contactActivity.get(profile.id)))}</time></span><span class="contact-preview">${escapeHtml(preview)}</span></span></button>`;
   }).join('');
+
+  if (query.length >= 2 && contactsSearchResults === null) {
+    list.innerHTML = `${chatMarkup}<p class="notification-empty">Buscando personas…</p>`;
+    return;
+  }
+
+  const userResults = (query.length >= 2 ? contactsSearchResults : [])
+    .filter((profile) => !contacts.some((chat) => chat.id === profile.id));
+
+  const userMarkup = userResults.length ? `
+    <div class="contacts-search-section">
+      <span class="contacts-search-title">Personas</span>
+      ${userResults.map((profile) => {
+        const follows = contactsSearchResultsFollowing.has(profile.id);
+        const pending = contactsSearchResultsPending.has(profile.id);
+        const label = follows ? 'Siguiendo' : pending ? 'Solicitado' : profile.is_private ? 'Solicitar' : 'Seguir';
+        return `<article class="contact-user-result">${avatarMarkup(profile)}<div class="contact-user-copy"><b>${escapeHtml(profile.display_name || 'Miembro de SR')}${badgeMarkup(profile)}${profile.is_private ? ' ⌑' : ''}</b><small>${escapeHtml(usernameFor(profile))}</small><div class="contact-user-actions"><button type="button" data-contact-search-follow="${profile.id}" data-following="${follows}" data-pending="${pending}">${label}</button><button type="button" data-contact-search-message="${profile.id}">Mensaje</button></div></div></article>`;
+      }).join('')}
+    </div>` : '';
+
+  if (query.length >= 2) {
+    if (!chatMarkup && !userMarkup) {
+      list.innerHTML = '<p class="notification-empty">No encontramos chats ni personas que coincidan.</p>';
+    } else {
+      list.innerHTML = `${chatMarkup}${userMarkup}`;
+    }
+    return;
+  }
+
+  if (!filteredChats.length) {
+    list.innerHTML = `<p class="notification-empty">${contacts.length ? 'No encontramos chats que coincidan.' : 'Aún no hay conversaciones. Busca una persona para comenzar.'}</p>`;
+    return;
+  }
+
+  list.innerHTML = chatMarkup;
+}
+
+async function searchContactsUsers(rawQuery) {
+  const query = rawQuery.trim().replace(/[,.()%]/g, '').slice(0, 60);
+  if (query.length < 2 || !currentUser) {
+    contactsSearchResults = [];
+    contactsSearchResultsFollowing = new Set();
+    contactsSearchResultsPending = new Set();
+    renderContacts();
+    return;
+  }
+
+  contactsSearchResults = null;
+  renderContacts();
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select(PROFILE_FIELDS)
+    .or(`display_name.ilike.%${query}%,username.ilike.%${query}%`)
+    .neq('id', currentUser.id)
+    .limit(12);
+
+  if (error) throw error;
+
+  const states = await relationshipStates((data || []).map((profile) => profile.id));
+  contactsSearchResultsFollowing = states.following;
+  contactsSearchResultsPending = states.pending;
+  contactsSearchResults = data || [];
+  renderContacts();
 }
 
 async function loadContacts() {
@@ -1215,7 +1284,11 @@ async function loadMessages({ scrollToLatest = false } = {}) {
   const reactionsByMessage = new Map(messageIds.map((id) => [id, []]));
   reactions.forEach((reaction) => reactionsByMessage.get(reaction.message_id)?.push(reaction));
   $('#messages-list').innerHTML = data.length ? data.map((message) => messageMarkup(message, messagesById, reactionsByMessage)).join('') : '<div class="conversation-empty"><strong>Inicia la conversación</strong><span>Envía el primer mensaje.</span></div>';
-  if (scrollToLatest || wasNearBottom) scroll.scrollTop = scroll.scrollHeight;
+  if (scrollToLatest || wasNearBottom) {
+    requestAnimationFrame(() => {
+      scroll.scrollTop = scroll.scrollHeight;
+    });
+  }
   const { error: seenError } = await supabase.from('messages').update({ seen_at: new Date().toISOString() }).eq('sender_id', selectedChat.id).eq('receiver_id', currentUser.id).is('seen_at', null);
   if (seenError) console.warn('No pudimos marcar los mensajes como leídos.', seenError);
   await loadContacts();
@@ -2104,11 +2177,52 @@ $('#story-viewer-content').addEventListener('submit', async (event) => {
 // Mensajes.
 $('#contacts-list').addEventListener('click', async (event) => {
   const contact = event.target.closest('[data-contact-id]');
-  if (!contact) return;
-  const profile = contacts.find((item) => item.id === contact.dataset.contactId);
-  if (profile) await openChat(profile);
+  const follow = event.target.closest('[data-contact-search-follow]');
+  const message = event.target.closest('[data-contact-search-message]');
+  try {
+    if (follow) {
+      const profile = contactsSearchResults?.find((item) => item.id === follow.dataset.contactSearchFollow);
+      if (!profile) return;
+      const toastMessage = await updateRelationship(profile, follow.dataset.following === 'true', follow.dataset.pending === 'true');
+      await Promise.all([loadCurrentProfile(), loadContacts(), searchContactsUsers($('#contacts-filter').value)]);
+      showToast(toastMessage);
+      return;
+    }
+    if (message) {
+      const profile = contactsSearchResults?.find((item) => item.id === message.dataset.contactSearchMessage);
+      if (!profile) return;
+      await openChat(profile);
+      return;
+    }
+    if (!contact) return;
+    const profile = contacts.find((item) => item.id === contact.dataset.contactId);
+    if (profile) await openChat(profile);
+  } catch (error) {
+    showToast(error.message || 'No pudimos completar esa acción.', 'error');
+  }
 });
-$('#contacts-filter')?.addEventListener('input', (event) => { contactsQuery = event.target.value || ''; renderContacts(); });
+$('#contacts-filter')?.addEventListener('input', (event) => {
+  contactsQuery = event.target.value || '';
+  window.clearTimeout(contactsSearchTimer);
+  if (contactsQuery.trim().length < 2) {
+    contactsSearchResults = [];
+    contactsSearchResultsFollowing = new Set();
+    contactsSearchResultsPending = new Set();
+    renderContacts();
+    return;
+  }
+  contactsSearchResults = null;
+  renderContacts();
+  contactsSearchTimer = window.setTimeout(async () => {
+    try {
+      await searchContactsUsers(contactsQuery);
+    } catch (error) {
+      contactsSearchResults = [];
+      renderContacts();
+      showToast(error.message || 'No pudimos buscar personas.', 'error');
+    }
+  }, 260);
+});
 $$('[data-contact-filter]').forEach((button) => button.addEventListener('click', () => {
   contactsFilter = button.dataset.contactFilter || 'all';
   $$('[data-contact-filter]').forEach((item) => item.classList.toggle('active', item === button));

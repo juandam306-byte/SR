@@ -299,7 +299,20 @@ body[data-profile-theme="nebula"] .ambient-one, .profile-hero.theme-nebula { bac
 .contact { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 9px; align-items: center; width: 100%; padding: 9px 8px; border: 0; border-radius: 10px; color: var(--ink-soft); background: transparent; text-align: left; }
 .contact:hover, .contact.active { background: var(--lavender); color: var(--ink); }
 .contact .avatar { width: 31px; height: 31px; border-radius: 10px 10px 10px 3px; font-size: 10px; }
-.contact-copy { display: grid; min-width: 0; gap: 3px; }.contact-line { display: flex; min-width: 0; gap: 6px; align-items: center; justify-content: space-between; }.contact-name { display: block; overflow: hidden; color: var(--ink); font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }.contact-line time { flex: 0 0 auto; color: var(--muted); font-size: 9px; }.contact-preview { display: block; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }.contact-unread { display: grid; min-width: 17px; height: 17px; place-items: center; padding: 0 4px; border: 2px solid var(--paper-solid); border-radius: 99px; color: #fff; background: var(--violet); box-shadow: 0 0 0 2px color-mix(in srgb, var(--violet) 16%, transparent); font-size: 8px; font-style: normal; font-weight: 800; }
+.contact-copy { display: grid; min-width: 0; gap: 3px; }
+/* Buscador de Mensajes: conserva los chats y añade personas que aún no tienen conversación. */
+.contacts-search-section { display: grid; gap: 6px; margin: 2px 0 8px; }
+.contacts-search-title { padding: 4px 7px 2px; color: var(--muted); font-size: 9px; font-weight: 800; letter-spacing: .7px; text-transform: uppercase; }
+.contact-user-result { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 8px; align-items: start; width: 100%; padding: 9px 7px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper-solid); box-sizing: border-box; }
+.contact-user-result .avatar { width: 34px; height: 34px; border-radius: 10px 10px 10px 3px; }
+.contact-user-copy { min-width: 0; }
+.contact-user-copy > b, .contact-user-copy > small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.contact-user-copy > b { color: var(--ink); font-size: 11px; }
+.contact-user-copy > small { margin-top: 2px; color: var(--muted); font-size: 9px; }
+.contact-user-actions { display: flex; gap: 4px; margin-top: 6px; }
+.contact-user-actions button { min-width: 0; padding: 5px 6px; border: 0; border-radius: 7px; color: var(--violet); background: var(--lavender); font-size: 9px; font-weight: 700; }
+.contact-user-actions button:hover { background: color-mix(in srgb, var(--lavender) 75%, var(--violet)); }
+.contact-line { display: flex; min-width: 0; gap: 6px; align-items: center; justify-content: space-between; }.contact-name { display: block; overflow: hidden; color: var(--ink); font-size: 12px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }.contact-line time { flex: 0 0 auto; color: var(--muted); font-size: 9px; }.contact-preview { display: block; overflow: hidden; color: var(--muted); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }.contact-unread { display: grid; min-width: 17px; height: 17px; place-items: center; padding: 0 4px; border: 2px solid var(--paper-solid); border-radius: 99px; color: #fff; background: var(--violet); box-shadow: 0 0 0 2px color-mix(in srgb, var(--violet) 16%, transparent); font-size: 8px; font-style: normal; font-weight: 800; }
 .conversation-panel { display: flex; min-width: 0; flex-direction: column; }
 .conversation-empty { display: grid; flex: 1; place-content: center; gap: 6px; padding: 25px; color: var(--muted); text-align: center; }
 .conversation-empty strong { color: var(--ink); font: 700 20px "Outfit", sans-serif; }
@@ -2530,4 +2543,138 @@ html body:has(#auth-view:not([hidden])) main {
 html body:has(#auth-view:not([hidden])) .auth-layout {
   position: relative;
   z-index: 2;
+}
+
+
+/* =========================================================
+   SR CHAT FIX FINAL — composer fixed + keyboard safe
+   ========================================================= */
+#messages-view .conversation-panel,
+#messages-view #conversation-content {
+  min-height: 0 !important;
+}
+
+#messages-view #conversation-content {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+#messages-view #messages-list {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: auto !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+#messages-view #typing-indicator {
+  flex: 0 0 auto !important;
+}
+
+#messages-view #reply-context {
+  flex: 0 0 auto !important;
+}
+
+#messages-view #message-form.message-composer {
+  position: relative !important;
+  inset: auto !important;
+  flex: 0 0 auto !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  z-index: 20 !important;
+}
+
+#messages-view #message-content {
+  min-width: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+@media (min-width: 761px) {
+  body:has(#messages-view:not([hidden])) {
+    overflow: hidden !important;
+  }
+
+  body:has(#messages-view:not([hidden])) #messages-view,
+  body:has(#messages-view:not([hidden])) .messages-panel {
+    height: 100vh !important;
+    min-height: 0 !important;
+  }
+
+  body:has(#messages-view:not([hidden])) .conversation-panel {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  body:has(#messages-view:not([hidden])) #conversation-content {
+    height: 100% !important;
+    max-height: 100% !important;
+  }
+}
+
+@media (max-width: 760px) {
+  html, body {
+    overscroll-behavior: none;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) {
+    overflow: hidden !important;
+    position: fixed !important;
+    width: 100% !important;
+    height: var(--sr-viewport-height, 100dvh) !important;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) #messages-view,
+  body:has(#messages-view.chat-open:not([hidden])) .messages-panel,
+  body:has(#messages-view.chat-open:not([hidden])) .conversation-panel {
+    height: var(--sr-viewport-height, 100dvh) !important;
+    min-height: 0 !important;
+    max-height: var(--sr-viewport-height, 100dvh) !important;
+    overflow: hidden !important;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) #conversation-content {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) .conversation-header {
+    flex: 0 0 68px !important;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) #messages-list {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) #message-form.message-composer {
+    flex: 0 0 auto !important;
+    position: relative !important;
+    bottom: auto !important;
+    margin: 0 !important;
+    padding-bottom: calc(8px + env(safe-area-inset-bottom)) !important;
+  }
+
+  /* When the keyboard is open, remove the extra safe-area space so the
+     composer sits directly above the keyboard. */
+  body:has(#messages-view.chat-open:not([hidden])).sr-keyboard-open
+    #message-form.message-composer {
+    padding-bottom: 7px !important;
+  }
+
+  body:has(#messages-view.chat-open:not([hidden])) #message-content {
+    font-size: 16px !important;
+  }
 }

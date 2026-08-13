@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=22" />
+    <link rel="stylesheet" href="style.css?v=26" />
   </head>
   <body>
     <div class="ambient ambient-one"></div>
@@ -20,7 +20,7 @@
 
     <header class="site-header">
       <a class="brand" href="#inicio" aria-label="SR, inicio">
-        <span class="brand-mark"><img src="assets/sr-logo.svg" alt="" width="44" height="44" /></span>
+        <span class="brand-mark" aria-hidden="true"><span>SR</span></span>
         <span class="brand-name">SR <small>sin restricciones</small></span>
       </a>
       <div class="header-actions">
@@ -173,7 +173,7 @@
           <header class="view-heading settings-heading"><div><p class="eyebrow">TU EXPERIENCIA</p><h1>Ajustes</h1></div><button id="settings-back-button" class="button button-secondary settings-back-button" type="button">← Regresar</button></header>
           <form id="settings-form" class="settings-card" novalidate>
             <section><p class="settings-label">APARIENCIA</p><h2>Personaliza tu fondo</h2><div class="settings-theme-row"><span><b>Modo oscuro</b><small>Cambia la apariencia general de SR.</small></span><button id="settings-theme-toggle" class="theme-switch-button" type="button" aria-pressed="false">☾ Oscuro</button></div><p class="settings-help">Este tema se muestra en tu perfil y en tu experiencia de SR.</p><div class="theme-choices" role="radiogroup" aria-label="Tema de perfil"><label class="theme-choice nebula"><input type="radio" name="profile-theme" value="nebula" />Nebula</label><label class="theme-choice ocean"><input type="radio" name="profile-theme" value="ocean" />Océano</label><label class="theme-choice sunset"><input type="radio" name="profile-theme" value="sunset" />Atardecer</label><label class="theme-choice forest"><input type="radio" name="profile-theme" value="forest" />Bosque</label><label class="theme-choice rose"><input type="radio" name="profile-theme" value="rose" />Rosa</label></div><label class="background-upload" for="background-image-input"><span>▧</span><b>Usar una imagen de fondo</b><small>Se optimiza antes de guardarse. Puedes dejarlo vacío para usar solo el tema.</small></label><input id="background-image-input" type="file" accept="image/jpeg,image/png,image/webp" hidden /><div id="background-image-preview" class="background-image-preview" hidden></div></section>
-            <section class="settings-group"><p class="settings-label">NOTIFICACIONES Y PRIVACIDAD</p><label class="setting-row"><span><b>Notificaciones por correo</b><small>Recibe avisos importantes en tu email.</small></span><input id="email-notifications" type="checkbox" /></label><label class="setting-row"><span><b>Notificaciones en SR</b><small>Muestra alertas dentro de la aplicación.</small></span><input id="push-notifications" type="checkbox" /></label><label class="setting-row"><span><b>Estado de actividad</b><small>Permite mostrar que estás activo.</small></span><input id="show-activity" type="checkbox" /></label><label class="setting-row"><span><b>Cuenta privada</b><small>Solo tus seguidores aprobados verán tus publicaciones e historias.</small></span><input id="account-private" type="checkbox" /></label><label class="setting-row"><span><b>Mostrar número de seguidores</b><small>Ocúltalo en los perfiles de otras personas.</small></span><input id="show-follower-count" type="checkbox" /></label><label class="field message-permission"><span>Quién puede enviarte mensajes</span><select id="allow-messages-from"><option value="everyone">Todas las personas</option><option value="following">Solo personas que sigues</option></select></label><label class="field message-permission"><span>Quién puede comentar tus publicaciones</span><select id="comments-from"><option value="everyone">Todas las personas</option><option value="following">Solo tus seguidores</option><option value="nobody">Nadie</option></select></label></section>
+            <section class="settings-group"><p class="settings-label">NOTIFICACIONES Y PRIVACIDAD</p><label class="setting-row"><span><b>Notificaciones por correo</b><small>Recibe avisos importantes en tu email.</small></span><input id="email-notifications" type="checkbox" /></label><label class="setting-row"><span><b>Notificaciones push</b><small>Recibe avisos de SR incluso cuando la página esté cerrada.</small></span><input id="push-notifications" type="checkbox" /></label><div class="push-notification-control"><div><b id="push-status-title">Notificaciones del dispositivo</b><small id="push-status-text">Comprueba el permiso del navegador para recibir avisos fuera de SR.</small></div><button id="enable-push-button" class="button button-secondary" type="button">Activar</button></div><label class="setting-row"><span><b>Estado de actividad</b><small>Permite mostrar que estás activo.</small></span><input id="show-activity" type="checkbox" /></label><label class="setting-row"><span><b>Cuenta privada</b><small>Solo tus seguidores aprobados verán tus publicaciones e historias.</small></span><input id="account-private" type="checkbox" /></label><label class="setting-row"><span><b>Mostrar número de seguidores</b><small>Ocúltalo en los perfiles de otras personas.</small></span><input id="show-follower-count" type="checkbox" /></label><label class="field message-permission"><span>Quién puede enviarte mensajes</span><select id="allow-messages-from"><option value="everyone">Todas las personas</option><option value="following">Solo personas que sigues</option></select></label><label class="field message-permission"><span>Quién puede comentar tus publicaciones</span><select id="comments-from"><option value="everyone">Todas las personas</option><option value="following">Solo tus seguidores</option><option value="nobody">Nadie</option></select></label></section>
             <button id="save-settings-button" class="button button-primary" type="submit">Guardar ajustes</button>
           </form>
         </section>
@@ -232,6 +232,6 @@
     </dialog>
 
     <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-    <script type="module" src="app.js?v=22"></script>
+    <script type="module" src="app.js?v=26"></script>
   </body>
 </html>
