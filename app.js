@@ -264,6 +264,96 @@ if ('serviceWorker' in navigator && window.isSecureContext) {
   }));
 }
 
+
+/* SR Web Push */
+let pushRegistrationPromise = null;
+
+function vapidPublicKey() {
+  return String(
+    window.SR_PUSH_CONFIG?.VAPID_PUBLIC_KEY ||
+    document.querySelector('meta[name="sr-vapid-public-key"]')?.content ||
+    ''
+  ).trim();
+}
+
+function base64UrlToUint8Array(value) {
+  const padding = '='.repeat((4 - (value.length % 4)) % 4);
+  const raw = atob((value + padding).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from([...raw].map((c) => c.charCodeAt(0)));
+}
+
+async function ensurePushSubscription({ requestPermission = false } = {}) {
+  if (!currentUser) return { ok: false, reason: 'no-user' };
+  if (!('Notification' in window) || !('PushManager' in window) ||
+      !('serviceWorker' in navigator) || !window.isSecureContext) {
+    return { ok: false, reason: 'unsupported' };
+  }
+
+  const key = vapidPublicKey();
+  if (!key) return { ok: false, reason: 'missing-vapid-key' };
+  if (Notification.permission === 'denied') return { ok: false, reason: 'denied' };
+
+  if (Notification.permission !== 'granted') {
+    if (!requestPermission) return { ok: false, reason: 'permission-needed' };
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return { ok: false, reason: permission };
+  }
+
+  if (pushRegistrationPromise) return pushRegistrationPromise;
+
+  pushRegistrationPromise = (async () => {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      let subscription = await registration.pushManager.getSubscription();
+
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: base64UrlToUint8Array(key),
+        });
+      }
+
+      const data = subscription.toJSON();
+      const { error } = await supabase.from('push_subscriptions').upsert({
+        user_id: currentUser.id,
+        endpoint: data.endpoint,
+        p256dh: data.keys?.p256dh,
+        auth: data.keys?.auth,
+        user_agent: navigator.userAgent.slice(0, 1000),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'endpoint' });
+
+      if (error) throw error;
+      console.info('[SR Push] Dispositivo registrado correctamente.');
+      return { ok: true };
+    } catch (error) {
+      console.error('[SR Push] No se pudo registrar el dispositivo:', error);
+      return { ok: false, reason: 'registration-error', error };
+    } finally {
+      pushRegistrationPromise = null;
+    }
+  })();
+
+  return pushRegistrationPromise;
+}
+
+async function removePushSubscriptionForCurrentDevice() {
+  if (!currentUser || !('serviceWorker' in navigator)) return;
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    if (!subscription) return;
+    const endpoint = subscription.endpoint;
+    await subscription.unsubscribe();
+    await supabase.from('push_subscriptions')
+      .delete()
+      .eq('user_id', currentUser.id)
+      .eq('endpoint', endpoint);
+  } catch (error) {
+    console.warn('[SR Push] Error desactivando Push:', error);
+  }
+}
+
 function setBusy(button, busy, busyText) {
   if (!button.dataset.originalText) button.dataset.originalText = button.innerHTML;
   button.disabled = busy;
@@ -1696,6 +1786,9 @@ async function showApp(user) {
     if (loadId !== appLoadId) return;
     await Promise.all([loadFeed(), loadNotifications(), loadContacts(), loadStories()]);
     startRealtime();
+    if (currentSettings?.push_notifications !== false && Notification?.permission === 'granted') {
+      ensurePushSubscription().catch(() => {});
+    }
   } catch (error) {
     console.error(error);
     const migrationError = ['42703', '42P01', '42883'].includes(error?.code);
@@ -1999,6 +2092,25 @@ $('#settings-form').addEventListener('submit', async (event) => {
     ]);
     if (profileError) throw profileError;
     if (settingsError) throw settingsError;
+
+    if (settings.push_notifications) {
+      const result = await ensurePushSubscription({ requestPermission: true });
+      if (!result.ok) {
+        const messages = {
+          'missing-vapid-key': 'Falta configurar la clave pública VAPID en push-config.js.',
+          denied: 'El navegador bloqueó las notificaciones. Actívalas desde los permisos del sitio.',
+          unsupported: 'Este navegador no admite notificaciones Push.',
+        };
+        if (result.reason !== 'permission-needed') {
+          showToast(messages[result.reason] || 'No se pudo activar el Push.', 'error');
+        }
+      } else {
+        showToast('Notificaciones Push activadas en este dispositivo.');
+      }
+    } else {
+      await removePushSubscriptionForCurrentDevice();
+    }
+
     currentSettings = settings;
     selectedBackgroundImage = null;
     clearBackgroundImage = false;
