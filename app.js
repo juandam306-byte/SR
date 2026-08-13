@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js';
+import { SR_PUSH_CONFIG } from './push-config.js';
 
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -45,6 +46,10 @@ let editingPostId = null;
 let editingPostHasMedia = false;
 let focusedStoryId = null;
 let currentSettings = null;
+let notificationsCache = [];
+let notificationFilter = 'all';
+let notificationSoundEnabled = true;
+let notificationAudioContext = null;
 let selectedBackgroundImage = null;
 let clearBackgroundImage = false;
 let realtimeChannel = null;
@@ -270,7 +275,7 @@ let pushRegistrationPromise = null;
 
 function vapidPublicKey() {
   return String(
-    window.SR_PUSH_CONFIG?.VAPID_PUBLIC_KEY ||
+    SR_PUSH_CONFIG?.VAPID_PUBLIC_KEY ||
     document.querySelector('meta[name="sr-vapid-public-key"]')?.content ||
     ''
   ).trim();
@@ -1332,6 +1337,12 @@ async function loadContacts() {
     }).slice(0, 50);
     renderContacts();
     $('#messages-nav-dot').hidden = contactUnreadIds.size === 0;
+    const totalUnreadMessages = [...contactUnreadCounts.values()].reduce((sum, count) => sum + count, 0);
+    const messagesBadge = $('#messages-nav-badge');
+    if (messagesBadge) {
+      messagesBadge.hidden = totalUnreadMessages === 0;
+      messagesBadge.textContent = totalUnreadMessages > 99 ? '99+' : totalUnreadMessages;
+    }
   } finally {
     contactsLoading = false;
     if (contactsReloadQueued) {
@@ -1500,21 +1511,66 @@ function notificationIcon(type) {
 function notificationText(notification, profile) {
   const actor = profile?.display_name || 'Alguien';
   const message = {
-    follow: 'empezó a seguirte', like: 'indicó que le gusta tu publicación', comment: 'comentó tu publicación', repost: 'reposteó tu publicación', message: 'te envió un mensaje',
+    follow: 'empezó a seguirte',
+    like: 'indicó que le gusta tu publicación',
+    comment: 'comentó tu publicación',
+    repost: 'reposteó tu publicación',
+    message: 'te envió un mensaje',
   }[notification.type] || 'interactuó contigo';
   return `<b>${escapeHtml(actor)}</b> ${message}`;
 }
 
-function renderNotifications(notifications, profiles) {
-  const html = notifications.length ? notifications.map((notification) => `
-    <button class="notification-item${notification.read_at ? '' : ' unread'}" type="button" data-notification-id="${notification.id}" data-notification-post="${notification.post_id || ''}" data-notification-actor="${notification.actor_id}">
-      <span class="notification-icon">${notificationIcon(notification.type)}</span><span class="notification-text">${notificationText(notification, profiles.get(notification.actor_id))}<span class="notification-time">${escapeHtml(prettyDate(notification.created_at))}</span></span>
-    </button>`).join('') : '<p class="notification-empty">Todo al día por ahora.</p>';
+function notificationTypeLabel(type) {
+  return ({ follow: 'Nuevo seguidor', like: 'Me gusta', comment: 'Comentario', repost: 'Repost', message: 'Mensaje' })[type] || 'Actividad';
+}
+
+function playNotificationSound() {
+  if (!notificationSoundEnabled || document.visibilityState !== 'visible') return;
+  try {
+    notificationAudioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = notificationAudioContext.createOscillator();
+    const gain = notificationAudioContext.createGain();
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(740, notificationAudioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(980, notificationAudioContext.currentTime + 0.08);
+    gain.gain.setValueAtTime(0.0001, notificationAudioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.055, notificationAudioContext.currentTime + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.0001, notificationAudioContext.currentTime + 0.18);
+    oscillator.connect(gain).connect(notificationAudioContext.destination);
+    oscillator.start();
+    oscillator.stop(notificationAudioContext.currentTime + 0.19);
+  } catch {}
+}
+
+function notificationMarkup(notification, profiles) {
+  const profile = profiles.get(notification.actor_id);
+  const avatar = profile ? avatarMarkup(profile) : '<span class="avatar notification-avatar">SR</span>';
+  return `<button class="notification-item${notification.read_at ? '' : ' unread'}" type="button"
+      data-notification-id="${notification.id}" data-notification-post="${notification.post_id || ''}" data-notification-actor="${notification.actor_id}">
+      ${avatar}
+      <span class="notification-icon">${notificationIcon(notification.type)}</span>
+      <span class="notification-text"><small class="notification-type">${notificationTypeLabel(notification.type)}</small>${notificationText(notification, profile)}<span class="notification-time">${escapeHtml(prettyDate(notification.created_at))}</span></span>
+      ${notification.read_at ? '' : '<i class="notification-unread-dot" aria-label="No leída"></i>'}
+    </button>`;
+}
+
+function renderNotifications(notifications = notificationsCache, profiles = new Map()) {
+  const unread = notifications.filter((notification) => !notification.read_at).length;
+  const visible = notificationFilter === 'unread'
+    ? notifications.filter((notification) => !notification.read_at)
+    : notifications;
+
+  const html = visible.length
+    ? visible.map((notification) => notificationMarkup(notification, profiles)).join('')
+    : `<div class="notification-empty-state"><span>✓</span><b>${notificationFilter === 'unread' ? 'No tienes notificaciones sin leer' : 'Todo al día'}</b><small>Las nuevas actividades aparecerán aquí automáticamente.</small></div>`;
+
   $('#notification-list').innerHTML = html;
   $('#notification-list-dialog').innerHTML = html;
-  const unread = notifications.filter((notification) => !notification.read_at).length;
   $('#notification-badge').hidden = unread === 0;
-  $('#notification-badge').textContent = unread > 9 ? '9+' : unread;
+  $('#notification-badge').textContent = unread > 99 ? '99+' : unread;
+  const summary = unread ? `${unread} sin leer` : 'Todo al día';
+  $('#notification-summary').textContent = summary;
+  $('#notification-dialog-summary').textContent = summary;
 }
 
 async function loadNotifications() {
@@ -1523,10 +1579,37 @@ async function loadNotifications() {
     .select('id, recipient_id, actor_id, type, post_id, read_at, created_at')
     .eq('recipient_id', currentUser.id)
     .order('created_at', { ascending: false })
-    .limit(20);
+    .limit(50);
   if (error) throw error;
-  const profiles = await profilesForIds(data.map((notification) => notification.actor_id));
-  renderNotifications(data, profiles);
+  notificationsCache = data || [];
+  const profiles = await profilesForIds(notificationsCache.map((notification) => notification.actor_id));
+  renderNotifications(notificationsCache, profiles);
+}
+
+async function handleNewNotification(record) {
+  if (!currentUser || !record || record.recipient_id !== currentUser.id) return;
+  if (notificationsCache.some((item) => item.id === record.id)) return;
+  notificationsCache = [record, ...notificationsCache].slice(0, 50);
+  const profiles = await profilesForIds(notificationsCache.map((notification) => notification.actor_id));
+  renderNotifications(notificationsCache, profiles);
+  playNotificationSound();
+
+  const actor = profiles.get(record.actor_id)?.display_name || 'Alguien';
+  const text = record.type === 'message' ? `${actor} te envió un mensaje` : `${actor} ${({
+    follow: 'empezó a seguirte', like: 'indicó que le gusta tu publicación',
+    comment: 'comentó tu publicación', repost: 'reposteó tu publicación'
+  })[record.type] || 'interactuó contigo'}`;
+
+  const chatIsOpen = record.type === 'message' && activeView === 'messages' && selectedChat?.id === record.actor_id;
+  if (!chatIsOpen) showNotificationToast(text, record);
+}
+
+function showNotificationToast(text, notification) {
+  if (!toast) return;
+  toast.innerHTML = `<span class="toast-notification-icon">${notificationIcon(notification.type)}</span><span><b>${notification.type === 'message' ? 'Nuevo mensaje' : 'Nueva actividad'}</b><small>${escapeHtml(text)}</small></span>`;
+  toast.classList.add('show', 'notification-toast');
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => toast.classList.remove('show', 'notification-toast'), 4200);
 }
 
 async function openPostDialog(postId) {
@@ -1742,6 +1825,9 @@ function startRealtime() {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, (payload) => {
       handleRealtimeMessage(payload).catch((error) => console.warn('No pudimos actualizar el mensaje.', error));
     })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_id=eq.${currentUser.id}` }, (payload) => {
+      handleNewNotification(payload.new).catch((error) => console.warn('No pudimos mostrar la notificación.', error));
+    })
     .subscribe();
 }
 
@@ -1786,7 +1872,7 @@ async function showApp(user) {
     if (loadId !== appLoadId) return;
     await Promise.all([loadFeed(), loadNotifications(), loadContacts(), loadStories()]);
     startRealtime();
-    if (currentSettings?.push_notifications !== false && Notification?.permission === 'granted') {
+    if (currentSettings?.push_notifications !== false && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
       ensurePushSubscription().catch(() => {});
     }
   } catch (error) {
@@ -2384,22 +2470,70 @@ $('#message-form').addEventListener('submit', async (event) => {
   } finally { setBusy(button, false); }
 });
 
-// Notificaciones.
+async function openMessagesWithUser(userId) {
+  await loadContacts();
+  const profile = contacts.find((item) => item.id === userId) || (await supabase.from('profiles').select(PROFILE_FIELDS).eq('id', userId).maybeSingle()).data;
+  if (!profile) return;
+  selectedChat = profile;
+  setActiveView('messages');
+  await loadMessages({ scrollToLatest: true });
+  await loadContacts();
+}
+
+// Notificaciones: centro en tiempo real, estilo WhatsApp Web.
 $('#notifications-toggle').addEventListener('click', () => notificationsDialog.showModal());
 $$('.close-notifications-dialog').forEach((button) => button.addEventListener('click', () => notificationsDialog.close()));
+
 async function handleNotificationClick(event) {
   const item = event.target.closest('[data-notification-id]');
   if (!item) return;
-  await markNotificationRead(item.dataset.notificationId);
-  await loadNotifications();
-  if (item.dataset.notificationPost) { notificationsDialog.close(); await openPostDialog(item.dataset.notificationPost); }
-  else if (item.dataset.notificationActor) { notificationsDialog.close(); await showProfile(item.dataset.notificationActor); }
+  try {
+    await markNotificationRead(item.dataset.notificationId);
+    const target = notificationsCache.find((notification) => notification.id === item.dataset.notificationId);
+    if (target) target.read_at = new Date().toISOString();
+    const profiles = await profilesForIds([target?.actor_id].filter(Boolean));
+    renderNotifications(notificationsCache, profiles);
+    if (target?.type === 'message' && target.actor_id) {
+      notificationsDialog.close();
+      await openMessagesWithUser(target.actor_id);
+    } else if (target?.post_id) {
+      notificationsDialog.close();
+      await openPostDialog(target.post_id);
+    } else if (target?.actor_id) {
+      notificationsDialog.close();
+      await showProfile(target.actor_id);
+    }
+  } catch (error) {
+    showToast(error.message || 'No pudimos abrir la notificación.', 'error');
+  }
 }
 [$('#notification-list'), $('#notification-list-dialog')].forEach((list) => list.addEventListener('click', handleNotificationClick));
-$('#mark-notifications-read').addEventListener('click', async () => {
-  const { error } = await supabase.from('notifications').update({ read_at: new Date().toISOString() }).eq('recipient_id', currentUser.id).is('read_at', null);
-  if (error) showToast(error.message, 'error'); else { await loadNotifications(); showToast('Notificaciones marcadas como leídas.'); }
-});
+
+async function markAllNotificationsRead() {
+  const { error } = await supabase.from('notifications').update({ read_at: new Date().toISOString() })
+    .eq('recipient_id', currentUser.id).is('read_at', null);
+  if (error) throw error;
+  notificationsCache = notificationsCache.map((item) => ({ ...item, read_at: item.read_at || new Date().toISOString() }));
+  const profiles = await profilesForIds(notificationsCache.map((notification) => notification.actor_id));
+  renderNotifications(notificationsCache, profiles);
+  showToast('Todas las notificaciones están leídas.');
+}
+$('#mark-notifications-read').addEventListener('click', () => markAllNotificationsRead().catch((error) => showToast(error.message, 'error')));
+$('#mark-notifications-read-dialog').addEventListener('click', () => markAllNotificationsRead().catch((error) => showToast(error.message, 'error')));
+
+$$('[data-notification-filter]').forEach((button) => button.addEventListener('click', async () => {
+  notificationFilter = button.dataset.notificationFilter;
+  $$('[data-notification-filter]').forEach((item) => item.classList.toggle('active', item === button));
+  const profiles = await profilesForIds(notificationsCache.map((notification) => notification.actor_id));
+  renderNotifications(notificationsCache, profiles);
+}));
+$$('[data-notification-filter-dialog]').forEach((button) => button.addEventListener('click', async () => {
+  notificationFilter = button.dataset.notificationFilterDialog;
+  $$('[data-notification-filter-dialog]').forEach((item) => item.classList.toggle('active', item === button));
+  $$('[data-notification-filter]').forEach((item) => item.classList.toggle('active', item.dataset.notificationFilter === notificationFilter));
+  const profiles = await profilesForIds(notificationsCache.map((notification) => notification.actor_id));
+  renderNotifications(notificationsCache, profiles);
+}));
 
 $('#sign-out-button').addEventListener('click', async () => { const { error } = await supabase.auth.signOut(); if (error) showToast(error.message, 'error'); });
 

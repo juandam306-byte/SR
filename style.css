@@ -2678,3 +2678,59 @@ html body:has(#auth-view:not([hidden])) .auth-layout {
     font-size: 16px !important;
   }
 }
+
+
+/* --- Centro de notificaciones SR · estilo WhatsApp Web --- */
+.notification-trigger { transition: transform .18s ease, box-shadow .18s ease; }
+.notification-trigger:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(80,60,150,.16); }
+.notification-trigger:has(.notification-badge) { }
+#notification-badge {
+  position: absolute; top: -5px; right: -5px; min-width: 17px; height: 17px; padding: 0 4px;
+  display: grid; place-items: center; border: 2px solid var(--canvas); border-radius: 999px;
+  color: #fff; background: #e5485d; font: 800 9px/1 "DM Sans",sans-serif;
+}
+.notifications-card .side-card-top > div { display: grid; gap: 2px; }
+.notification-summary, .notification-dialog-summary { color: var(--muted); font-size: 10px; }
+.notification-filters, .notification-dialog-toolbar { display: flex; align-items: center; gap: 5px; margin: 9px 0 2px; }
+.notification-filter {
+  padding: 5px 9px; border: 0; border-radius: 999px; color: var(--muted);
+  background: transparent; font-size: 10px; font-weight: 800;
+}
+.notification-filter.active { color: var(--violet); background: var(--lavender); }
+.notification-item {
+  position: relative; grid-template-columns: 30px 18px 1fr 6px; gap: 7px; align-items: center;
+  padding: 10px 4px; border: 0; border-radius: 12px; transition: background .15s ease;
+}
+.notification-item:hover { background: var(--subtle); }
+.notification-item.unread { background: color-mix(in srgb, var(--lavender) 46%, transparent); }
+.notification-item .avatar, .notification-avatar { width: 30px; height: 30px; border-radius: 10px 10px 10px 3px; font-size: 10px; }
+.notification-icon { width: 18px; height: 18px; border-radius: 6px; font-size: 10px; }
+.notification-type { display: block; margin-bottom: 1px; color: var(--muted); font-size: 8px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; }
+.notification-unread-dot { width: 6px; height: 6px; border-radius: 50%; background: #e5485d; box-shadow: 0 0 0 3px color-mix(in srgb, #e5485d 12%, transparent); }
+.notification-empty-state { display: grid; justify-items: center; gap: 5px; padding: 25px 12px; color: var(--muted); text-align: center; }
+.notification-empty-state > span { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 50%; color: var(--green); background: color-mix(in srgb, var(--green) 13%, transparent); font-weight: 900; }
+.notification-empty-state b { color: var(--ink-soft); font-size: 12px; }
+.notification-empty-state small { max-width: 220px; font-size: 10px; line-height: 1.45; }
+.notifications-dialog .dialog-heading { align-items: flex-start; }
+.notifications-dialog .notification-list { max-height: min(62vh, 560px); overflow: auto; padding: 7px 20px 20px; }
+.notification-dialog-toolbar { padding: 0 20px; }
+.notification-dialog-toolbar #mark-notifications-read-dialog { margin-left: auto; }
+.notification-toast {
+  left: auto; right: 22px; bottom: 22px; transform: translate(0, 18px);
+  display: flex; align-items: center; gap: 10px; min-width: min(340px, calc(100vw - 28px));
+  padding: 10px 13px; color: var(--ink); background: var(--paper-solid); border: 1px solid var(--line);
+  box-shadow: 0 15px 40px rgba(25,20,55,.18);
+}
+.notification-toast.show { transform: translate(0, 0); }
+.notification-toast > span:last-child { display: grid; gap: 2px; text-align: left; }
+.notification-toast b { font-size: 11px; }
+.notification-toast small { color: var(--muted); font-size: 10px; }
+.toast-notification-icon { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 10px; color: var(--violet); background: var(--lavender); font-size: 15px; }
+.nav-unread-badge {
+  display: inline-grid; min-width: 16px; height: 16px; padding: 0 4px; place-items: center; margin-left: 2px;
+  border-radius: 999px; color: #fff; background: #e5485d; font: 800 8px/1 "DM Sans",sans-serif;
+}
+@media (max-width: 760px) {
+  .notification-toast { right: 12px; bottom: 78px; min-width: 0; width: calc(100vw - 24px); }
+  .notifications-dialog .notification-list { padding-inline: 14px; }
+}

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sr-app-shell-v8';
+const CACHE_NAME = 'sr-app-shell-v10';
 const APP_SHELL = [
   './',
   './index.html',

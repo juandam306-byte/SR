@@ -12,7 +12,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css?v=26" />
+    <link rel="stylesheet" href="style.css?v=27" />
   </head>
   <body>
     <div class="ambient ambient-one"></div>
@@ -26,7 +26,7 @@
       <div class="header-actions">
         <button class="install-button" id="install-app" type="button" hidden title="Instalar SR como aplicación">Instalar</button>
         <button class="round-button notification-trigger" id="notifications-toggle" type="button" aria-label="Ver notificaciones" title="Notificaciones" hidden>
-          ♧<b id="notification-badge" hidden>0</b>
+          🔔<b id="notification-badge" hidden>0</b>
         </button>
       </div>
     </header>
@@ -68,7 +68,7 @@
         <aside class="left-rail">
           <nav class="primary-nav" aria-label="Navegación">
             <button class="nav-link active" type="button" data-view="feed"><span>⌂</span> Inicio</button>
-            <button class="nav-link" type="button" data-view="messages"><span>✉</span> Mensajes <i id="messages-nav-dot" hidden></i></button>
+            <button class="nav-link" type="button" data-view="messages"><span>✉</span> Mensajes <i id="messages-nav-dot" hidden></i><b id="messages-nav-badge" class="nav-unread-badge" hidden>0</b></button>
             <button class="nav-link" type="button" data-view="profile"><span>◎</span> Perfil</button>
           </nav>
           <section class="sidebar-account">
@@ -184,7 +184,14 @@
             <div class="profile-card-main"><div class="avatar avatar-xl" id="profile-avatar">SR</div><h2 id="profile-name">Tu perfil</h2><p id="profile-handle">@usuario</p><p id="profile-bio" class="profile-bio">Añade una bio para que la comunidad te conozca.</p></div>
             <div class="mini-stats"><span><b id="sidebar-post-count">0</b> posts</span><span><b id="sidebar-follower-count">0</b> seguidores</span></div>
           </section>
-          <section class="side-card notifications-card"><div class="side-card-top"><span>NOTIFICACIONES</span><button id="mark-notifications-read" class="text-button" type="button">Leer todas</button></div><div id="notification-list" class="notification-list"></div></section>
+          <section class="side-card notifications-card">
+  <div class="side-card-top"><div><span>NOTIFICACIONES</span><small id="notification-summary" class="notification-summary">Todo al día</small></div><button id="mark-notifications-read" class="text-button" type="button">Leer todas</button></div>
+  <div class="notification-filters" role="tablist" aria-label="Filtrar notificaciones">
+    <button class="notification-filter active" type="button" data-notification-filter="all">Todas</button>
+    <button class="notification-filter" type="button" data-notification-filter="unread">No leídas</button>
+  </div>
+  <div id="notification-list" class="notification-list"></div>
+</section>
         </aside>
       </section>
 
@@ -228,10 +235,12 @@
     </dialog>
 
     <dialog id="notifications-dialog" class="dialog notifications-dialog" aria-labelledby="notifications-dialog-title">
-      <div class="dialog-heading"><div><p class="eyebrow">AL DÍA</p><h2 id="notifications-dialog-title">Notificaciones</h2></div><button class="icon-button close-notifications-dialog" type="button" aria-label="Cerrar">×</button></div><div id="notification-list-dialog" class="notification-list"></div>
+      <div class="dialog-heading"><div><p class="eyebrow">ACTIVIDAD</p><h2 id="notifications-dialog-title">Notificaciones</h2><p id="notification-dialog-summary" class="notification-dialog-summary">Todo al día</p></div><button class="icon-button close-notifications-dialog" type="button" aria-label="Cerrar">×</button></div>
+<div class="notification-dialog-toolbar"><button class="notification-filter active" type="button" data-notification-filter-dialog="all">Todas</button><button class="notification-filter" type="button" data-notification-filter-dialog="unread">No leídas</button><button id="mark-notifications-read-dialog" class="text-button" type="button">Leer todas</button></div>
+<div id="notification-list-dialog" class="notification-list"></div>
     </dialog>
 
     <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
-    <script type="module" src="app.js?v=26"></script>
+    <script type="module" src="app.js?v=27"></script>
   </body>
 </html>
